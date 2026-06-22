@@ -108,18 +108,6 @@ func _on_solicito_revelar() -> void:
 	_dibujar_overlay()
 
 
-func _physics_process(_delta: float) -> void:
-	if muerto:
-		return
-	var c := _celda_del_jugador()
-	if not mapa.dentro(c.x, c.y):
-		return
-	if tablero.celdas[c.x][c.y]["mina"]:
-		tablero.revelar(c.x, c.y)
-		_dibujar_overlay()
-		_morir()
-
-
 func _morir() -> void:
 	muerto = true
 	GameManager.morir()
