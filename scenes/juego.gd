@@ -2,11 +2,13 @@ extends Node2D
 
 @onready var suelo: TileMapLayer = $Suelo
 @onready var paredes: TileMapLayer = $Paredes
+@onready var reveladas: TileMapLayer = $Reveladas
 @onready var overlay: Node2D = $Overlay
 @onready var jugador: CharacterBody2D = $Jugador
 
 const FUENTE_SUELO := 0
 const FUENTE_PARED := 1
+const FUENTE_REVELADA := 2
 
 var mapa: Mapa
 var tablero: Tablero
@@ -64,10 +66,13 @@ func _forzar_revelar_fila(fila: int) -> void:
 func _dibujar_overlay() -> void:
 	for hijo in overlay.get_children():
 		hijo.queue_free()
+	reveladas.clear()
 
 	for fila in range(tablero.filas):
 		for col in range(tablero.columnas):
 			var celda = tablero.celdas[fila][col]
+			if celda["revelada"] and not mapa.es_pared(fila, col):
+				reveladas.set_cell(Vector2i(col, fila), FUENTE_REVELADA, Vector2i(0, 0))
 			var texto := ""
 			var color := Color.WHITE
 
