@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://b54vxe66nwggn"]
+
+[ext_resource type="Script" uid="uid://cmhjev1pjj3r0" path="res://scenes/juego.gd" id="1_2uc6o"]
+[ext_resource type="TileSet" uid="uid://i7ijb6r1478w" path="res://recursos/tilesets/mundo.tres" id="1_dlla0"]
+
+[node name="Juego" type="Node2D" unique_id=1902666549]
+script = ExtResource("1_2uc6o")
+
+[node name="Suelo" type="TileMapLayer" parent="." unique_id=1250863577]
+tile_set = ExtResource("1_dlla0")
+
+[node name="Paredes" type="TileMapLayer" parent="." unique_id=708105560]
+tile_set = ExtResource("1_dlla0")

@@ -1,0 +1,17 @@
+[gd_resource type="TileSet" format=3 uid="uid://i7ijb6r1478w"]
+
+[ext_resource type="Texture2D" uid="uid://cc5x1oy2pyef3" path="res://recursos/tilesets/suelo.png" id="1_mp6xd"]
+[ext_resource type="Texture2D" uid="uid://b2qemmi3tre24" path="res://recursos/tilesets/pared.png" id="2_iyo8b"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8bcx7"]
+texture = ExtResource("1_mp6xd")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1ft31"]
+texture = ExtResource("2_iyo8b")
+0:0/0 = 0
+
+[resource]
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_8bcx7")
+sources/1 = SubResource("TileSetAtlasSource_1ft31")
