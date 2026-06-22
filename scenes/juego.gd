@@ -35,6 +35,10 @@ func _ready() -> void:
 	tablero.revelar(1, 1)
 	_forzar_revelar_fila(4)
 	tablero.abanderar(7, 4)
+	
+	for f in range(tablero.filas):
+		for c in range(tablero.columnas):
+			tablero.revelar(f, c)
 
 	_dibujar_overlay()
 
