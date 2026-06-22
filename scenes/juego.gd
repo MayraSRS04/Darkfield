@@ -112,7 +112,7 @@ func _physics_process(_delta: float) -> void:
 	if muerto:
 		return
 	var c := _celda_del_jugador()
-	if not mapa._dentro(c.x, c.y):
+	if not mapa.dentro(c.x, c.y):
 		return
 	if tablero.celdas[c.x][c.y]["mina"]:
 		tablero.revelar(c.x, c.y)

@@ -27,6 +27,8 @@ func es_caminable(fila: int, col: int) -> bool:
 		return false
 	return not paredes.has(Vector2i(fila, col))
 
+func dentro(fila: int, col: int) -> bool:
+	return fila >= 0 and fila < filas and col >= 0 and col < columnas
 
 func celdas_caminables() -> Array:
 	var resultado: Array = []
