@@ -4,6 +4,7 @@ extends RefCounted
 var filas: int
 var columnas: int
 var celdas: Array = []
+var bloqueadas: Dictionary = {}
 
 
 func _init(f: int, c: int) -> void:
@@ -11,6 +12,11 @@ func _init(f: int, c: int) -> void:
 	columnas = c
 	_crear_celdas_vacias()
 
+
+func marcar_bloqueadas(celdas_muro: Array) -> void:
+	bloqueadas = {}
+	for c in celdas_muro:
+		bloqueadas[c] = true
 
 func _crear_celdas_vacias() -> void:
 	celdas = []
@@ -79,6 +85,8 @@ func _calcular_numeros() -> void:
 func revelar(fila: int, col: int) -> void:
 	if not _dentro(fila, col):
 		return
+	if bloqueadas.has(Vector2i(fila, col)):
+		return
 	var celda = celdas[fila][col]
 	if celda["revelada"] or celda["abanderada"]:
 		return
@@ -95,6 +103,8 @@ func revelar(fila: int, col: int) -> void:
 
 func abanderar(fila: int, col: int) -> void:
 	if not _dentro(fila, col):
+		return
+	if bloqueadas.has(Vector2i(fila, col)):
 		return
 	var celda = celdas[fila][col]
 	if celda["revelada"]:
