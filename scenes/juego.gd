@@ -36,13 +36,14 @@ func _ready() -> void:
 	
 	jugador.position = suelo.map_to_local(Vector2i(1, 1))
 	jugador.solicito_revelar.connect(_on_solicito_revelar)
+	jugador.solicito_abanderar.connect(_on_solicito_abanderar)
 
 	tablero.revelar(1, 1)
 	#_forzar_revelar_fila(4)
 	#tablero.abanderar(7, 4)
 
 	_dibujar_overlay()
-
+	GameManager.actualizar_minas_restantes(tablero.minas_sin_abanderar())
 
 func _pintar_mapa() -> void:
 	for fila in range(mapa.filas):
@@ -112,3 +113,19 @@ func _morir() -> void:
 	muerto = true
 	GameManager.morir()
 	print("MUERTE: pisaste o revelaste una mina")
+
+func _on_solicito_abanderar() -> void:
+	if muerto:
+		return
+	var c := _celda_del_jugador()
+	tablero.abanderar(c.x, c.y)
+	_dibujar_overlay()
+	GameManager.actualizar_minas_restantes(tablero.minas_sin_abanderar())
+	if tablero.es_victoria():
+		_ganar()
+
+
+func _ganar() -> void:
+	muerto = true
+	GameManager.nivel_ganado()
+	print("VICTORIA: abanderaste todas las minas")
