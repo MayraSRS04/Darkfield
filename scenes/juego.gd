@@ -3,12 +3,14 @@ extends Node2D
 @onready var suelo: TileMapLayer = $Suelo
 @onready var paredes: TileMapLayer = $Paredes
 @onready var overlay: Node2D = $Overlay
+@onready var jugador: CharacterBody2D = $Jugador
 
 const FUENTE_SUELO := 0
 const FUENTE_PARED := 1
 
 var mapa: Mapa
 var tablero: Tablero
+var muerto := false
 
 
 func _ready() -> void:
@@ -31,14 +33,13 @@ func _ready() -> void:
 	tablero.colocar_minas(8, Vector2i(1, 1), mapa.celdas_caminables())
 
 	_pintar_mapa()
+	
+	jugador.position = suelo.map_to_local(Vector2i(1, 1))
+	jugador.solicito_revelar.connect(_on_solicito_revelar)
 
 	tablero.revelar(1, 1)
-	_forzar_revelar_fila(4)
-	tablero.abanderar(7, 4)
-	
-	for f in range(tablero.filas):
-		for c in range(tablero.columnas):
-			tablero.revelar(f, c)
+	#_forzar_revelar_fila(4)
+	#tablero.abanderar(7, 4)
 
 	_dibujar_overlay()
 
@@ -91,3 +92,35 @@ func _crear_etiqueta(fila: int, col: int, texto: String, color: Color) -> void:
 	var pos := suelo.map_to_local(Vector2i(col, fila))
 	etiqueta.position = pos - Vector2(4, 8)
 	overlay.add_child(etiqueta)
+
+func _celda_del_jugador() -> Vector2i:
+	var celda := suelo.local_to_map(jugador.position)
+	return Vector2i(celda.y, celda.x)
+
+
+func _on_solicito_revelar() -> void:
+	if muerto:
+		return
+	var c := _celda_del_jugador()
+	tablero.revelar(c.x, c.y)
+	if tablero.celdas[c.x][c.y]["mina"]:
+		_morir()
+	_dibujar_overlay()
+
+
+func _physics_process(_delta: float) -> void:
+	if muerto:
+		return
+	var c := _celda_del_jugador()
+	if not mapa._dentro(c.x, c.y):
+		return
+	if tablero.celdas[c.x][c.y]["mina"]:
+		tablero.revelar(c.x, c.y)
+		_dibujar_overlay()
+		_morir()
+
+
+func _morir() -> void:
+	muerto = true
+	GameManager.morir()
+	print("MUERTE: pisaste o revelaste una mina")
