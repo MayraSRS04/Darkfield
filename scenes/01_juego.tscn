@@ -11,3 +11,5 @@ tile_set = ExtResource("1_dlla0")
 
 [node name="Paredes" type="TileMapLayer" parent="." unique_id=708105560]
 tile_set = ExtResource("1_dlla0")
+
+[node name="Overlay" type="Node2D" parent="." unique_id=1143127116]
