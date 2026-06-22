@@ -27,13 +27,14 @@ func _ready() -> void:
 	mapa.cargar(layout)
 
 	tablero = Tablero.new(mapa.filas, mapa.columnas)
+	tablero.marcar_bloqueadas(mapa.celdas_pared())
 	tablero.colocar_minas(8, Vector2i(1, 1), mapa.celdas_caminables())
 
 	_pintar_mapa()
 
 	tablero.revelar(1, 1)
 	_forzar_revelar_fila(4)
-	tablero.abanderar(2, 2)
+	tablero.abanderar(7, 4)
 
 	_dibujar_overlay()
 
