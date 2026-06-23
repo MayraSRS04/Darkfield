@@ -39,6 +39,16 @@ func _ready() -> void:
 	jugador.position = suelo.map_to_local(Vector2i(1, 1))
 	jugador.solicito_revelar.connect(_on_solicito_revelar)
 	jugador.solicito_abanderar.connect(_on_solicito_abanderar)
+	
+	for cazador in get_tree().get_nodes_in_group("cazadores"):
+		cazador.jugador = jugador
+		cazador.mapa = mapa
+		var caminables := mapa.celdas_caminables()
+		if not caminables.is_empty():
+			var celda_fila_col: Vector2i = caminables[randi() % caminables.size()]
+			cazador.global_position = suelo.map_to_local(Vector2i(celda_fila_col.y, celda_fila_col.x))
+			cazador.inicio = cazador.global_position
+			cazador.destino = cazador.global_position
 
 	tablero.revelar(1, 1)
 	#_forzar_revelar_fila(4)
@@ -71,32 +81,60 @@ func _dibujar_overlay() -> void:
 	for fila in range(tablero.filas):
 		for col in range(tablero.columnas):
 			var celda = tablero.celdas[fila][col]
-			if celda["revelada"] and not mapa.es_pared(fila, col):
+			var es_pared := mapa.es_pared(fila, col)
+
+			if celda["revelada"] and not es_pared:
 				reveladas.set_cell(Vector2i(col, fila), FUENTE_REVELADA, Vector2i(0, 0))
+
+			if not es_pared and not celda["revelada"]:
+				_crear_niebla(fila, col)
+
 			var texto := ""
 			var color := Color.WHITE
 
 			if celda["abanderada"]:
-				texto = "P"
-				color = Color(1.0, 0.4, 0.4)
+				texto = "⚑"
+				color = Color(1.0, 0.3, 0.3)
 			elif celda["revelada"]:
 				if celda["mina"]:
-					texto = "*"
-					color = Color(1.0, 0.3, 0.3)
+					texto = "✦"
+					color = Color(1.0, 0.2, 0.2)
 				elif celda["numero"] > 0:
 					texto = str(celda["numero"])
-					color = Color(0.6, 0.85, 1.0)
+					color = _color_numero(celda["numero"])
 
 			if texto != "":
 				_crear_etiqueta(fila, col, texto, color)
+
+
+func _color_numero(numero: int) -> Color:
+	match numero:
+		1: return Color(0.30, 0.55, 1.0)
+		2: return Color(0.30, 0.80, 0.40)
+		3: return Color(1.0, 0.40, 0.40)
+		4: return Color(0.60, 0.40, 0.90)
+		5: return Color(0.80, 0.45, 0.20)
+		6: return Color(0.30, 0.80, 0.80)
+		7: return Color(0.90, 0.90, 0.95)
+		_: return Color(0.70, 0.70, 0.75)
+
+
+func _crear_niebla(fila: int, col: int) -> void:
+	var niebla := ColorRect.new()
+	niebla.color = Color(0.05, 0.06, 0.10, 0.78)
+	niebla.size = Vector2(16, 16)
+	var pos := suelo.map_to_local(Vector2i(col, fila))
+	niebla.position = pos - Vector2(8, 8)
+	overlay.add_child(niebla)
 
 
 func _crear_etiqueta(fila: int, col: int, texto: String, color: Color) -> void:
 	var etiqueta := Label.new()
 	etiqueta.text = texto
 	etiqueta.add_theme_color_override("font_color", color)
+	etiqueta.add_theme_font_size_override("font_size", 14)
 	var pos := suelo.map_to_local(Vector2i(col, fila))
-	etiqueta.position = pos - Vector2(4, 8)
+	etiqueta.position = pos - Vector2(5, 9)
 	overlay.add_child(etiqueta)
 
 func _celda_del_jugador() -> Vector2i:
@@ -108,6 +146,8 @@ func _on_solicito_revelar() -> void:
 	if muerto:
 		return
 	var c := _celda_del_jugador()
+	if tablero.celdas[c.x][c.y]["abanderada"]:
+		return
 	tablero.revelar(c.x, c.y)
 	if tablero.celdas[c.x][c.y]["mina"]:
 		_morir()
@@ -117,7 +157,7 @@ func _on_solicito_revelar() -> void:
 func _morir() -> void:
 	muerto = true
 	GameManager.morir()
-	print("MUERTE: pisaste o revelaste una mina")
+	print("MORISTE!!!")
 
 func _on_solicito_abanderar() -> void:
 	if muerto:
@@ -128,7 +168,14 @@ func _on_solicito_abanderar() -> void:
 	GameManager.actualizar_minas_restantes(tablero.minas_sin_abanderar())
 	if tablero.es_victoria():
 		_ganar()
-
+		
+func _process(_delta: float) -> void:
+	if muerto:
+		return
+	for cazador in get_tree().get_nodes_in_group("cazadores"):
+		if jugador.global_position.distance_to(cazador.global_position) < 12.0:
+			_morir()
+			break
 
 func _ganar() -> void:
 	muerto = true
