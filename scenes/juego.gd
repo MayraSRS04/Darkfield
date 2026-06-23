@@ -17,22 +17,28 @@ var muerto := false
 
 func _ready() -> void:
 	var layout := [
-		"##########",
-		"#........#",
-		"#.##..##.#",
-		"#.#....#.#",
-		"#....##..#",
-		"#.#....#.#",
-		"#.##..##.#",
-		"#........#",
-		"##########",
+		"###################",
+		"#.................#",
+		"#.##..##.#.##..##.#",
+		"#.#....#.#.#....#.#",
+		"#....##.......##..#",
+		"#.#....#...#....#.#",
+		"#.##..##.#..#..#..#",
+		"#.................#",
+		"#.##..##.#.##..##.#",
+		"#.#....#.#.#....#.#",
+		"#....##.......##..#",
+		"#.#....#...#....#.#",
+		"#.##..##.#..#..#..#",
+		"#.................#",
+		"###################",
 	]
 	mapa = Mapa.new()
 	mapa.cargar(layout)
 
 	tablero = Tablero.new(mapa.filas, mapa.columnas)
 	tablero.marcar_bloqueadas(mapa.celdas_pared())
-	tablero.colocar_minas(8, Vector2i(1, 1), mapa.celdas_caminables())
+	tablero.colocar_minas(20, Vector2i(1, 1), mapa.celdas_caminables())
 
 	_pintar_mapa()
 	
@@ -93,11 +99,11 @@ func _dibujar_overlay() -> void:
 			var color := Color.WHITE
 
 			if celda["abanderada"]:
-				texto = "⚑"
+				texto = "🚩"
 				color = Color(1.0, 0.3, 0.3)
 			elif celda["revelada"]:
 				if celda["mina"]:
-					texto = "✦"
+					texto = "💣"
 					color = Color(1.0, 0.2, 0.2)
 				elif celda["numero"] > 0:
 					texto = str(celda["numero"])
@@ -133,9 +139,15 @@ func _crear_etiqueta(fila: int, col: int, texto: String, color: Color) -> void:
 	etiqueta.text = texto
 	etiqueta.add_theme_color_override("font_color", color)
 	etiqueta.add_theme_font_size_override("font_size", 14)
+	etiqueta.size = Vector2(16, 16)
+	etiqueta.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	etiqueta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	etiqueta.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var pos := suelo.map_to_local(Vector2i(col, fila))
-	etiqueta.position = pos - Vector2(5, 9)
+	etiqueta.position = pos - etiqueta.size / 2
+
 	overlay.add_child(etiqueta)
+
 
 func _celda_del_jugador() -> Vector2i:
 	var celda := suelo.local_to_map(jugador.position)
