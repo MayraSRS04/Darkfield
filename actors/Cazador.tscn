@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://bjx4y5ow2yr3e"]
+
+[ext_resource type="Script" uid="uid://baa1ov7mmgyd7" path="res://actors/cazador.gd" id="1_lbd6u"]
+[ext_resource type="Texture2D" uid="uid://bvio4rd7v85dr" path="res://recursos/sprites/jugador.png" id="2_3vxol"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_3vxol"]
+radius = 6.0
+
+[node name="Cazador" type="CharacterBody2D" unique_id=405291502]
+script = ExtResource("1_lbd6u")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1120639462]
+shape = SubResource("CircleShape2D_3vxol")
+
+[node name="LineaDeVista" type="RayCast2D" parent="." unique_id=1090252832]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=452583605]
+texture = ExtResource("2_3vxol")
