@@ -4,12 +4,13 @@ enum Estado { MENU, JUGANDO, PAUSA, GAME_OVER }
 
 const VELOCIDAD_JUGADOR := 120.0
 const VELOCIDAD_CAZADOR := 70.0
-const ALCANCE_VISION := 6
-const ANGULO_CONO := 75.0
+const ALCANCE_VISION := 4
+const ANGULO_CONO := 35.0
 const DURACION_CONGELAR := 3.0
 const RADIO_RADAR := 2
 const MAX_PAUSA := 5.0
 const RECARGA_PAUSA := 1.0
+const TIEMPO_ESPERA_PATRULLA := 3.0
 
 signal estado_cambiado(nuevo: Estado)
 signal minas_restantes_cambiado(cantidad: int)
