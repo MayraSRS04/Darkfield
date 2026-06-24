@@ -135,7 +135,6 @@ func _perseguir(delta: float) -> void:
 				ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
 				_avanzar_ruta()
 
-
 	if _ve_al_jugador():
 		estado = Estado.PERSIGUIENDO
 		timer_perdida = 0.0
