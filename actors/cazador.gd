@@ -17,12 +17,13 @@ var ultima_direccion := Vector2.RIGHT
 var ultima_pos_vista: Vector2
 var timer_sospecha := 0.0
 var timer_perdida := 0.0
+var ultimo_estado_linterna: Estado = Estado.NORMAL
 
 func _ready() -> void:
 	inicio = global_position
 	destino = global_position
 	ultima_pos_vista = global_position
-	_configurar_linterna()
+	_configurar_linterna(GameManager.ANGULO_CONO)
 
 func _physics_process(delta: float) -> void:
 	if _ve_al_jugador():
@@ -37,8 +38,32 @@ func _physics_process(delta: float) -> void:
 			moviendose = false
 	velocity = Vector2.ZERO
 	move_and_slide()
-	$Linterna.rotation = ultima_direccion.angle()
-	$Linterna.position = ultima_direccion * 4.0
+
+	if estado != ultimo_estado_linterna:
+		ultimo_estado_linterna = estado
+		match estado:
+			Estado.SOSPECHANDO:
+				_configurar_linterna(GameManager.ANGULO_CONO * 1.5)
+			Estado.PERSIGUIENDO, Estado.INVESTIGANDO:
+				_configurar_linterna(GameManager.ANGULO_CONO * 2.2)
+			_:
+				_configurar_linterna(GameManager.ANGULO_CONO)
+
+	$Linterna.rotation = ultima_direccion.angle() + PI / 2.0
+	match estado:
+		Estado.SOSPECHANDO:
+			$Linterna.energy = 1.4
+			$Linterna.texture_scale = 0.33
+			$Linterna.position = ultima_direccion * 21.0
+		Estado.PERSIGUIENDO, Estado.INVESTIGANDO:
+			$Linterna.energy = 1.8
+			$Linterna.texture_scale = 0.36
+			$Linterna.position = ultima_direccion * 21.0 * (0.36 / 0.3)
+		_:
+			$Linterna.energy = 0.9
+			$Linterna.texture_scale = 0.3
+			$Linterna.position = ultima_direccion * 21.0
+
 	queue_redraw()
 
 func _actualizar_estado(delta: float) -> void:
@@ -308,11 +333,10 @@ func _draw() -> void:
 		var progreso: float = minf(timer_sospecha / GameManager.TIEMPO_ESPERA_PATRULLA, 1.0)
 		draw_arc(Vector2.ZERO, 8.0, -PI / 2.0, -PI / 2.0 + progreso * TAU, 20, Color(1.0, 1.0, 0.2, 0.95), 2.0)
 
-
-func _configurar_linterna() -> void:
+func _configurar_linterna(angulo_cono: float) -> void:
 	var tam := 128
 	var imagen := Image.create(tam, tam, false, Image.FORMAT_RGBA8)
-	var medio_angulo := deg_to_rad(GameManager.ANGULO_CONO)
+	var medio_angulo := deg_to_rad(angulo_cono)
 	for y: int in range(tam):
 		for x: int in range(tam):
 			var dir := Vector2(float(x) - tam / 2.0, float(y) - float(tam))

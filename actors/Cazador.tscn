@@ -29,8 +29,9 @@ scale = Vector2(0.21153846, 0.25581396)
 texture = ExtResource("2_3vxol")
 
 [node name="Linterna" type="PointLight2D" parent="." unique_id=2200000001]
-position = Vector2(0, -6)
-texture_scale = 0.5
+position = Vector2(0, 0)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 0.35
 energy = 0.9
 color = Color(0.85, 0.92, 1.0, 1)
 shadow_enabled = true
