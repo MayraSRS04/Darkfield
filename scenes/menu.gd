@@ -4,15 +4,25 @@ extends Control
 @onready var btn_modo_historia: Button = $Contenedor/BtnModoHistoria
 @onready var btn_opciones: Button = $Contenedor/FilaInferior/BtnOpciones
 @onready var btn_salir: Button = $Contenedor/FilaInferior/BtnSalir
+@onready var popup_dificultad: PanelContainer = $PopupDificultad
+@onready var btn_facil: Button = $PopupDificultad/Opciones/BtnFacil
+@onready var btn_medio: Button = $PopupDificultad/Opciones/BtnMedio
+@onready var btn_dificil: Button = $PopupDificultad/Opciones/BtnDificil
 
 func _ready() -> void:
 	btn_partida_rapida.pressed.connect(_on_partida_rapida)
 	btn_modo_historia.pressed.connect(_on_modo_historia)
 	btn_opciones.pressed.connect(_on_opciones)
 	btn_salir.pressed.connect(_on_salir)
+	btn_facil.pressed.connect(_on_dificultad.bind(0))
+	btn_medio.pressed.connect(_on_dificultad.bind(1))
+	btn_dificil.pressed.connect(_on_dificultad.bind(2))
 
 func _on_partida_rapida() -> void:
-	GameManager.iniciar_nivel(0)
+	popup_dificultad.visible = not popup_dificultad.visible
+
+func _on_dificultad(nivel: int) -> void:
+	GameManager.iniciar_nivel(nivel)
 	get_tree().change_scene_to_file("res://scenes/01_juego.tscn")
 
 func _on_modo_historia() -> void:

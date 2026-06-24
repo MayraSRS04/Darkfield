@@ -74,3 +74,34 @@ text = "OPCIONES"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "CERRAR DARKFIELD"
+
+[node name="PopupDificultad" type="PanelContainer" parent="." unique_id=2100000001]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -70.0
+offset_right = 80.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Opciones" type="VBoxContainer" parent="PopupDificultad" unique_id=2100000002]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnFacil" type="Button" parent="PopupDificultad/Opciones" unique_id=2100000003]
+layout_mode = 2
+text = "FÁCIL"
+
+[node name="BtnMedio" type="Button" parent="PopupDificultad/Opciones" unique_id=2100000004]
+layout_mode = 2
+text = "MEDIO"
+
+[node name="BtnDificil" type="Button" parent="PopupDificultad/Opciones" unique_id=2100000005]
+layout_mode = 2
+text = "DIFÍCIL"
