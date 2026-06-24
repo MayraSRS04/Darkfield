@@ -1,10 +1,76 @@
 [gd_scene format=3 uid="uid://clr4qpf4on20t"]
 
 [ext_resource type="Script" uid="uid://bruer4stmyx1" path="res://scenes/menu.gd" id="1_1ed5b"]
+[ext_resource type="Shader" uid="uid://bxi2q3dakjlmk" path="res://scenes/fondo_menu.gdshader" id="2_fondo"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fondo"]
+shader = ExtResource("2_fondo")
+shader_parameter/velocidad = 0.08
+shader_parameter/color_linea = Color(0.12, 0.28, 0.55, 1)
+shader_parameter/color_fondo = Color(0.03, 0.06, 0.12, 1)
 
 [node name="Menu" type="Control" unique_id=1025367565]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_1ed5b")
+
+[node name="Fondo" type="ColorRect" parent="." unique_id=545909795]
+material = SubResource("ShaderMaterial_fondo")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.06, 0.12, 1)
+
+[node name="Contenedor" type="VBoxContainer" parent="." unique_id=152192261]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -160.0
+offset_right = 160.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="Titulo" type="Label" parent="Contenedor" unique_id=1391338663]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.78, 0.93, 1)
+theme_override_font_sizes/font_size = 48
+text = "DARKFIELD"
+horizontal_alignment = 1
+
+[node name="Separador" type="HSeparator" parent="Contenedor" unique_id=783218161]
+layout_mode = 2
+
+[node name="BtnPartidaRapida" type="Button" parent="Contenedor" unique_id=1202161414]
+layout_mode = 2
+text = "PARTIDA RÁPIDA"
+
+[node name="BtnModoHistoria" type="Button" parent="Contenedor" unique_id=199518511]
+layout_mode = 2
+text = "MODO HISTORIA"
+
+[node name="FilaInferior" type="HBoxContainer" parent="Contenedor" unique_id=128583558]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnOpciones" type="Button" parent="Contenedor/FilaInferior" unique_id=1895909458]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "OPCIONES"
+
+[node name="BtnSalir" type="Button" parent="Contenedor/FilaInferior" unique_id=1172156144]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CERRAR DARKFIELD"
