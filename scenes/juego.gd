@@ -16,46 +16,35 @@ var muerto := false
 
 
 func _ready() -> void:
-	var layout := [
-		"###################",
-		"#.................#",
-		"#.##..##.#.##..##.#",
-		"#.#....#.#.#....#.#",
-		"#....##.......##..#",
-		"#.#....#...#....#.#",
-		"#.##..##.#..#..#..#",
-		"#.................#",
-		"#.##..##.#.##..##.#",
-		"#.#....#.#.#....#.#",
-		"#....##.......##..#",
-		"#.#....#...#....#.#",
-		"#.##..##.#..#..#..#",
-		"#.................#",
-		"###################",
-	]
+	var cfg: Dictionary = GameManager.CONFIGURACIONES[GameManager.nivel_actual]
+	var layout := _generar_layout(cfg["filas"], cfg["columnas"])
 	mapa = Mapa.new()
 	mapa.cargar(layout)
 
 	tablero = Tablero.new(mapa.filas, mapa.columnas)
 	tablero.marcar_bloqueadas(mapa.celdas_pared())
-	tablero.colocar_minas(20, Vector2i(1, 1), mapa.celdas_caminables())
-
+	tablero.colocar_minas(cfg["minas"], Vector2i(1, 1), mapa.celdas_caminables())
+	
 	_pintar_mapa()
 	
 	jugador.position = suelo.map_to_local(Vector2i(1, 1))
 	jugador.solicito_revelar.connect(_on_solicito_revelar)
 	jugador.solicito_abanderar.connect(_on_solicito_abanderar)
 	
-	for cazador in get_tree().get_nodes_in_group("cazadores"):
+	var escena_cazador := preload("res://actors/Cazador.tscn")
+	for _i in range(cfg["cazadores"]):
+		var cazador := escena_cazador.instantiate()
+		cazador.add_to_group("cazadores")
+		add_child(cazador)
 		cazador.jugador = jugador
 		cazador.mapa = mapa
 		var caminables := mapa.celdas_caminables()
 		if not caminables.is_empty():
-			var celda_fila_col: Vector2i = caminables[randi() % caminables.size()]
-			cazador.global_position = suelo.map_to_local(Vector2i(celda_fila_col.y, celda_fila_col.x))
+			var celda: Vector2i = caminables[randi() % caminables.size()]
+			cazador.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
 			cazador.inicio = cazador.global_position
 			cazador.destino = cazador.global_position
-
+	
 	tablero.revelar(1, 1)
 	#_forzar_revelar_fila(4)
 	#tablero.abanderar(7, 4)
@@ -193,3 +182,17 @@ func _ganar() -> void:
 	muerto = true
 	GameManager.nivel_ganado()
 	print("VICTORIA: abanderaste todas las minas")
+
+func _generar_layout(filas: int, columnas: int) -> Array:
+	var layout: Array = []
+	for fila in range(filas):
+		var linea := ""
+		for col in range(columnas):
+			if fila == 0 or fila == filas - 1 or col == 0 or col == columnas - 1:
+				linea += "#"
+			elif fila % 2 == 0 and col % 2 == 0:
+				linea += "#"
+			else:
+				linea += "."
+		layout.append(linea)
+	return layout

@@ -26,5 +26,3 @@ tile_set = ExtResource("1_dlla0")
 [node name="Jugador" parent="." unique_id=1797815940 instance=ExtResource("3_oiwu5")]
 collision_layer = 2
 
-[node name="Cazador" parent="." unique_id=405291502 groups=["cazadores"] instance=ExtResource("4_8bcx7")]
-position = Vector2(8, 4)

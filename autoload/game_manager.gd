@@ -12,6 +12,12 @@ const MAX_PAUSA := 5.0
 const RECARGA_PAUSA := 1.0
 const TIEMPO_ESPERA_PATRULLA := 3.0
 
+const CONFIGURACIONES := [
+	{"filas": 11, "columnas": 11, "minas": 10, "cazadores": 1},
+	{"filas": 17, "columnas": 17, "minas": 25, "cazadores": 2},
+	{"filas": 25, "columnas": 25, "minas": 50, "cazadores": 3},
+]
+
 signal estado_cambiado(nuevo: Estado)
 signal minas_restantes_cambiado(cantidad: int)
 signal jugador_detectado(detectado: bool)
