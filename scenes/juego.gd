@@ -38,6 +38,7 @@ func _ready() -> void:
 	jugador.solicito_abanderar.connect(_on_solicito_abanderar)
 	
 	var escena_cazador := preload("res://actors/Cazador.tscn")
+	var celdas_usadas: Array = []
 	for _i in range(cfg["cazadores"]):
 		var cazador := escena_cazador.instantiate()
 		cazador.add_to_group("cazadores")
@@ -45,8 +46,10 @@ func _ready() -> void:
 		cazador.jugador = jugador
 		cazador.mapa = mapa
 		var caminables := mapa.celdas_caminables()
+		caminables = caminables.filter(func(c): return not celdas_usadas.has(c))
 		if not caminables.is_empty():
 			var celda: Vector2i = caminables[randi() % caminables.size()]
+			celdas_usadas.append(celda)
 			cazador.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
 			cazador.inicio = cazador.global_position
 			cazador.destino = cazador.global_position

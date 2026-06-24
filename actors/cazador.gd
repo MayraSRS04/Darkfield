@@ -17,6 +17,7 @@ var ultima_direccion := Vector2.RIGHT
 var ultima_pos_vista: Vector2
 var timer_sospecha := 0.0
 var timer_perdida := 0.0
+var timer_bloqueado := 0.0
 var ultimo_estado_linterna: Estado = Estado.NORMAL
 
 func _ready() -> void:
@@ -69,15 +70,15 @@ func _physics_process(delta: float) -> void:
 func _actualizar_estado(delta: float) -> void:
 	match estado:
 		Estado.NORMAL:
-			_patrullar()
+			_patrullar(delta)
 		Estado.SOSPECHANDO:
 			_sospechar(delta)
 		Estado.PERSIGUIENDO:
 			_perseguir(delta)
 		Estado.INVESTIGANDO:
-			_investigar()
+			_investigar(delta)
 		Estado.REGRESA:
-			_regresar()
+			_regresar(delta)
 
 func _velocidad_actual() -> float:
 	match estado:
@@ -110,7 +111,7 @@ func _angulo_actual() -> float:
 		_:
 			return GameManager.ANGULO_CONO
 
-func _patrullar() -> void:
+func _patrullar(delta: float) -> void:
 	if _ve_al_jugador():
 		estado = Estado.SOSPECHANDO
 		timer_sospecha = 0.0
@@ -120,7 +121,7 @@ func _patrullar() -> void:
 	if not moviendose:
 		if ruta.is_empty():
 			_planear_ruta_aleatoria()
-		_avanzar_ruta()
+		_avanzar_ruta(delta)
 
 func _sospechar(delta: float) -> void:
 	if _ve_al_jugador():
@@ -136,7 +137,7 @@ func _sospechar(delta: float) -> void:
 			var ruta_hacia := _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
 			if not ruta_hacia.is_empty():
 				ruta = ruta_hacia
-				_avanzar_ruta()
+				_avanzar_ruta(delta)
 	else:
 		timer_sospecha -= delta * 2.5
 		if timer_sospecha <= 0.0:
@@ -150,7 +151,7 @@ func _perseguir(delta: float) -> void:
 		timer_perdida = 0.0
 		if not moviendose:
 			ruta = _calcular_ruta(_celda_actual(), _celda_de(jugador.global_position))
-			_avanzar_ruta()
+			_avanzar_ruta(delta)
 	else:
 		timer_perdida += delta
 		if timer_perdida >= 4.0:
@@ -161,16 +162,16 @@ func _perseguir(delta: float) -> void:
 		else:
 			if not moviendose:
 				ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
-				_avanzar_ruta()
+				_avanzar_ruta(delta)
 
 	if not moviendose:
 		if ruta.is_empty() or _celda_actual() == _celda_de(ultima_pos_vista):
 			estado = Estado.REGRESA
 			ruta = []
 			return
-		_avanzar_ruta()
+		_avanzar_ruta(delta)
 
-func _investigar() -> void:
+func _investigar(delta: float) -> void:
 	if _ve_al_jugador():
 		estado = Estado.PERSIGUIENDO
 		timer_perdida = 0.0
@@ -183,9 +184,9 @@ func _investigar() -> void:
 			estado = Estado.REGRESA
 			ruta = []
 			return
-		_avanzar_ruta()
+		_avanzar_ruta(delta)
 
-func _regresar() -> void:
+func _regresar(delta: float) -> void:
 	if _ve_al_jugador():
 		estado = Estado.SOSPECHANDO
 		timer_sospecha = 0.0
@@ -202,8 +203,7 @@ func _regresar() -> void:
 			if ruta.is_empty():
 				estado = Estado.NORMAL
 				return
-		_avanzar_ruta()
-
+		_avanzar_ruta(delta)
 
 func _planear_ruta_aleatoria() -> void:
 	if mapa == null:
@@ -218,7 +218,7 @@ func _planear_ruta_aleatoria() -> void:
 			ruta = posible
 			return
 
-func _avanzar_ruta() -> void:
+func _avanzar_ruta(delta: float) -> void:
 	if ruta.is_empty():
 		return
 	var siguiente: Vector2i = ruta[0]
@@ -227,8 +227,15 @@ func _avanzar_ruta() -> void:
 	for otro in get_tree().get_nodes_in_group("cazadores"):
 		if otro == self:
 			continue
-		if otro.global_position.distance_to(pos_siguiente) < 14.0:
+		var celda_otro := tilemap.local_to_map(otro.global_position)
+		var celda_destino := Vector2i(siguiente.y, siguiente.x)
+		if celda_otro == celda_destino:
+			timer_bloqueado += delta
+			if timer_bloqueado >= 0.5:
+				timer_bloqueado = 0.0
+				ruta = []
 			return
+	timer_bloqueado = 0.0
 	ruta.remove_at(0)
 	var dir := global_position.direction_to(pos_siguiente)
 	if dir.length() > 0.01:
