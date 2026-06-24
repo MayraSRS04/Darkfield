@@ -95,19 +95,27 @@ func _patrullar() -> void:
 		_avanzar_ruta()
 
 func _sospechar(delta: float) -> void:
-	timer_sospecha += delta
-	if timer_sospecha >= GameManager.TIEMPO_ESPERA_PATRULLA:
-		estado = Estado.PERSIGUIENDO
-		timer_perdida = 0.0
-		ruta = []
-		moviendose = false
-		GameManager.reportar_deteccion(true)
-		return
-	if not moviendose:
-		var ruta_hacia := _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
-		if not ruta_hacia.is_empty():
-			ruta = ruta_hacia
-			_avanzar_ruta()
+	if _ve_al_jugador():
+		timer_sospecha += delta
+		if timer_sospecha >= GameManager.TIEMPO_ESPERA_PATRULLA:
+			estado = Estado.PERSIGUIENDO
+			timer_perdida = 0.0
+			ruta = []
+			moviendose = false
+			GameManager.reportar_deteccion(true)
+			return
+		if not moviendose:
+			var ruta_hacia := _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
+			if not ruta_hacia.is_empty():
+				ruta = ruta_hacia
+				_avanzar_ruta()
+	else:
+		timer_sospecha -= delta * 1.5
+		if timer_sospecha <= 0.0:
+			timer_sospecha = 0.0
+			estado = Estado.NORMAL
+			ruta = []
+			moviendose = false
 
 func _perseguir(delta: float) -> void:
 	if _ve_al_jugador():
