@@ -194,9 +194,14 @@ func _avanzar_ruta() -> void:
 	if ruta.is_empty():
 		return
 	var siguiente: Vector2i = ruta[0]
-	ruta.remove_at(0)
 	var tilemap: TileMapLayer = get_parent().get_node("Suelo")
 	var pos_siguiente: Vector2 = tilemap.map_to_local(Vector2i(siguiente.y, siguiente.x))
+	for otro in get_tree().get_nodes_in_group("cazadores"):
+		if otro == self:
+			continue
+		if otro.global_position.distance_to(pos_siguiente) < 14.0:
+			return
+	ruta.remove_at(0)
 	var dir := global_position.direction_to(pos_siguiente)
 	if dir.length() > 0.01:
 		ultima_direccion = dir
