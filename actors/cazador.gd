@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-enum Estado { PATRULLA, PERSIGUE, REGRESA }
+enum Estado { NORMAL, SOSPECHANDO, PERSIGUIENDO, INVESTIGANDO, REGRESA }
 
 const UMBRAL_LLEGADA := 1.0
 
@@ -8,73 +8,173 @@ const UMBRAL_LLEGADA := 1.0
 
 var jugador: Node2D = null
 var mapa: Mapa = null
-var estado: Estado = Estado.PATRULLA
+var estado: Estado = Estado.NORMAL
 var inicio: Vector2
 var destino: Vector2
 var moviendose := false
 var ruta: Array = []
 var ultima_direccion := Vector2.RIGHT
+var ultima_pos_vista: Vector2
+var timer_sospecha := 0.0
+var timer_perdida := 0.0
 
 func _ready() -> void:
 	inicio = global_position
 	destino = global_position
+	ultima_pos_vista = global_position
 
 func _physics_process(delta: float) -> void:
+	if _ve_al_jugador():
+		ultima_pos_vista = jugador.global_position
+
+	_actualizar_estado(delta)
+
 	if moviendose:
-		global_position = global_position.move_toward(destino, GameManager.VELOCIDAD_CAZADOR * delta)
+		global_position = global_position.move_toward(destino, _velocidad_actual() * delta)
 		if global_position.distance_to(destino) < UMBRAL_LLEGADA:
 			global_position = destino
 			moviendose = false
-		velocity = Vector2.ZERO
-		move_and_slide()
-		queue_redraw()
-		return
-	match estado:
-		Estado.PATRULLA:
-			_patrullar()
-		Estado.PERSIGUE:
-			_perseguir()
-		Estado.REGRESA:
-			_regresar()
 	velocity = Vector2.ZERO
 	move_and_slide()
 	queue_redraw()
 
+func _actualizar_estado(delta: float) -> void:
+	match estado:
+		Estado.NORMAL:
+			_patrullar()
+		Estado.SOSPECHANDO:
+			_sospechar(delta)
+		Estado.PERSIGUIENDO:
+			_perseguir(delta)
+		Estado.INVESTIGANDO:
+			_investigar()
+		Estado.REGRESA:
+			_regresar()
+
+func _velocidad_actual() -> float:
+	match estado:
+		Estado.PERSIGUIENDO:
+			return GameManager.VELOCIDAD_CAZADOR * 1.0
+		Estado.SOSPECHANDO:
+			return GameManager.VELOCIDAD_CAZADOR * 0.6
+		Estado.INVESTIGANDO:
+			return GameManager.VELOCIDAD_CAZADOR * 0.8
+		Estado.REGRESA:
+			return GameManager.VELOCIDAD_CAZADOR * 0.6
+		_:
+			return GameManager.VELOCIDAD_CAZADOR * 0.4
+
+func _alcance_actual() -> float:
+	match estado:
+		Estado.SOSPECHANDO:
+			return GameManager.ALCANCE_VISION * 16.0 * 1.0
+		Estado.PERSIGUIENDO, Estado.INVESTIGANDO:
+			return GameManager.ALCANCE_VISION * 16.0 * 1.2
+		_:
+			return GameManager.ALCANCE_VISION * 16.0
+
+func _angulo_actual() -> float:
+	match estado:
+		Estado.SOSPECHANDO:
+			return GameManager.ANGULO_CONO * 1.5
+		Estado.PERSIGUIENDO, Estado.INVESTIGANDO:
+			return GameManager.ANGULO_CONO * 2.2
+		_:
+			return GameManager.ANGULO_CONO
+
 func _patrullar() -> void:
 	if _ve_al_jugador():
-		estado = Estado.PERSIGUE
+		estado = Estado.SOSPECHANDO
+		timer_sospecha = 0.0
+		ruta = []
+		moviendose = false
+		return
+	if not moviendose:
+		if ruta.is_empty():
+			_planear_ruta_aleatoria()
+		_avanzar_ruta()
+
+func _sospechar(delta: float) -> void:
+	timer_sospecha += delta
+	if timer_sospecha >= GameManager.TIEMPO_ESPERA_PATRULLA:
+		estado = Estado.PERSIGUIENDO
+		timer_perdida = 0.0
+		ruta = []
+		moviendose = false
+		GameManager.reportar_deteccion(true)
+		return
+	if not moviendose:
+		var ruta_hacia := _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
+		if not ruta_hacia.is_empty():
+			ruta = ruta_hacia
+			_avanzar_ruta()
+
+func _perseguir(delta: float) -> void:
+	if _ve_al_jugador():
+		timer_perdida = 0.0
+		if not moviendose:
+			ruta = _calcular_ruta(_celda_actual(), _celda_de(jugador.global_position))
+			_avanzar_ruta()
+	else:
+		timer_perdida += delta
+		if timer_perdida >= 4.0:
+			estado = Estado.INVESTIGANDO
+			ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
+			moviendose = false
+			GameManager.reportar_deteccion(false)
+		else:
+			if not moviendose:
+				ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
+				_avanzar_ruta()
+
+
+	if _ve_al_jugador():
+		estado = Estado.PERSIGUIENDO
+		timer_perdida = 0.0
 		ruta = []
 		GameManager.reportar_deteccion(true)
 		return
-	if ruta.is_empty():
-		_planear_ruta_aleatoria()
-	_avanzar_ruta()
+	if not moviendose:
+		if ruta.is_empty() or _celda_actual() == _celda_de(ultima_pos_vista):
+			estado = Estado.REGRESA
+			ruta = []
+			return
+		_avanzar_ruta()
 
-func _perseguir() -> void:
-	if not _ve_al_jugador():
-		estado = Estado.REGRESA
+func _investigar() -> void:
+	if _ve_al_jugador():
+		estado = Estado.PERSIGUIENDO
+		timer_perdida = 0.0
 		ruta = []
-		GameManager.reportar_deteccion(false)
+		moviendose = false
+		GameManager.reportar_deteccion(true)
 		return
-	ruta = _calcular_ruta(_celda_actual(), _celda_de(jugador.global_position))
-	_avanzar_ruta()
+	if not moviendose:
+		if ruta.is_empty() or _celda_actual() == _celda_de(ultima_pos_vista):
+			estado = Estado.REGRESA
+			ruta = []
+			return
+		_avanzar_ruta()
 
 func _regresar() -> void:
 	if _ve_al_jugador():
-		estado = Estado.PERSIGUE
+		estado = Estado.SOSPECHANDO
+		timer_sospecha = 0.0
 		ruta = []
-		GameManager.reportar_deteccion(true)
+		moviendose = false
 		return
-	if _celda_actual() == _celda_de(inicio):
-		estado = Estado.PATRULLA
-		ruta = []
-		return
-	if ruta.is_empty():
-		ruta = _calcular_ruta(_celda_actual(), _celda_de(inicio))
-		if ruta.is_empty():
-			estado = Estado.PATRULLA
+	if not moviendose:
+		if _celda_actual() == _celda_de(inicio):
+			estado = Estado.NORMAL
+			ruta = []
 			return
-	_avanzar_ruta()
+		if ruta.is_empty():
+			ruta = _calcular_ruta(_celda_actual(), _celda_de(inicio))
+			if ruta.is_empty():
+				estado = Estado.NORMAL
+				return
+		_avanzar_ruta()
+
 
 func _planear_ruta_aleatoria() -> void:
 	if mapa == null:
@@ -145,22 +245,43 @@ func _calcular_ruta(desde: Vector2i, hasta: Vector2i) -> Array:
 func _ve_al_jugador() -> bool:
 	if jugador == null:
 		return false
-	var alcance_px: float = GameManager.ALCANCE_VISION * 16.0
-	if global_position.distance_to(jugador.global_position) > alcance_px:
+	if global_position.distance_to(jugador.global_position) > _alcance_actual():
 		return false
 	var angulo_a_jugador: float = (jugador.global_position - global_position).angle()
 	var angulo_cazador: float = ultima_direccion.angle()
 	var diferencia: float = abs(wrapf(angulo_a_jugador - angulo_cazador, -PI, PI))
-	if diferencia > deg_to_rad(GameManager.ANGULO_CONO):
+	if diferencia > deg_to_rad(_angulo_actual()):
 		return false
 	linea_de_vista.target_position = linea_de_vista.to_local(jugador.global_position)
 	linea_de_vista.force_raycast_update()
 	return not linea_de_vista.is_colliding()
 
+func _color_estado() -> Color:
+	match estado:
+		Estado.SOSPECHANDO:
+			return Color(1.0, 0.65, 0.0, 1.0)
+		Estado.PERSIGUIENDO:
+			return Color(1.0, 0.15, 0.15, 1.0)
+		Estado.INVESTIGANDO:
+			return Color(1.0, 0.45, 0.0, 1.0)
+		_:
+			return Color(0.2, 0.9, 0.3, 1.0)
+
+func _color_cono() -> Color:
+	match estado:
+		Estado.SOSPECHANDO:
+			return Color(1.0, 0.65, 0.0, 0.22)
+		Estado.PERSIGUIENDO:
+			return Color(1.0, 0.15, 0.15, 0.35)
+		Estado.INVESTIGANDO:
+			return Color(1.0, 0.45, 0.0, 0.28)
+		_:
+			return Color(0.2, 0.9, 0.3, 0.15)
+
 func _draw() -> void:
-	var alcance_px: float = GameManager.ALCANCE_VISION * 16.0
+	var alcance_px: float = _alcance_actual()
 	var angulo_base: float = ultima_direccion.angle()
-	var medio_angulo: float = deg_to_rad(GameManager.ANGULO_CONO)
+	var medio_angulo: float = deg_to_rad(_angulo_actual())
 	var pasos := 16
 	var puntos := PackedVector2Array()
 	puntos.append(Vector2.ZERO)
@@ -169,8 +290,9 @@ func _draw() -> void:
 		var angulo := angulo_base - medio_angulo + t * medio_angulo * 2.0
 		puntos.append(Vector2(cos(angulo), sin(angulo)) * alcance_px)
 	puntos.append(Vector2.ZERO)
-	var color_cono := Color(1.0, 0.85, 0.2, 0.18)
-	if estado == Estado.PERSIGUE:
-		color_cono = Color(1.0, 0.2, 0.2, 0.35)
-	draw_polygon(puntos, PackedColorArray([color_cono]))
-	draw_polyline(puntos, Color(1.0, 1.0, 1.0, 0.12), 0.8)
+	draw_polygon(puntos, PackedColorArray([_color_cono()]))
+	draw_polyline(puntos, Color(1.0, 1.0, 1.0, 0.10), 0.8)
+	draw_circle(Vector2.ZERO, 5.0, _color_estado())
+	if estado == Estado.SOSPECHANDO:
+		var progreso: float = minf(timer_sospecha / GameManager.TIEMPO_ESPERA_PATRULLA, 1.0)
+		draw_arc(Vector2.ZERO, 8.0, -PI / 2.0, -PI / 2.0 + progreso * TAU, 20, Color(1.0, 1.0, 0.2, 0.95), 2.0)
