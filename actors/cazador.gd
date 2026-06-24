@@ -298,7 +298,7 @@ func _draw() -> void:
 	puntos.append(Vector2.ZERO)
 	draw_polygon(puntos, PackedColorArray([_color_cono()]))
 	draw_polyline(puntos, Color(1.0, 1.0, 1.0, 0.10), 0.8)
-	draw_circle(Vector2.ZERO, 5.0, _color_estado())
+	##draw_circle(Vector2.ZERO, 5.0, _color_estado())
 	if estado == Estado.SOSPECHANDO:
 		var progreso: float = minf(timer_sospecha / GameManager.TIEMPO_ESPERA_PATRULLA, 1.0)
 		draw_arc(Vector2.ZERO, 8.0, -PI / 2.0, -PI / 2.0 + progreso * TAU, 20, Color(1.0, 1.0, 0.2, 0.95), 2.0)
