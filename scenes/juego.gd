@@ -5,6 +5,11 @@ extends Node2D
 @onready var reveladas: TileMapLayer = $Reveladas
 @onready var overlay: Node2D = $Overlay
 @onready var jugador: CharacterBody2D = $Jugador
+@onready var pantalla_resultado: CanvasLayer = $PantallaResultado
+@onready var lbl_titulo: Label = $PantallaResultado/Contenedor/LblTitulo
+@onready var lbl_detalle: Label = $PantallaResultado/Contenedor/LblDetalle
+@onready var btn_reintentar: Button = $PantallaResultado/Contenedor/BtnReintentar
+@onready var btn_menu: Button = $PantallaResultado/Contenedor/BtnMenu
 
 const FUENTE_SUELO := 0
 const FUENTE_PARED := 1
@@ -13,6 +18,7 @@ const FUENTE_REVELADA := 2
 var mapa: Mapa
 var tablero: Tablero
 var muerto := false
+var causa_muerte := ""
 
 
 func _ready() -> void:
@@ -51,6 +57,9 @@ func _ready() -> void:
 
 	_dibujar_overlay()
 	GameManager.actualizar_minas_restantes(tablero.minas_sin_abanderar())
+	
+	btn_reintentar.pressed.connect(_on_reintentar)
+	btn_menu.pressed.connect(_on_menu)
 
 func _pintar_mapa() -> void:
 	for fila in range(mapa.filas):
@@ -151,14 +160,14 @@ func _on_solicito_revelar() -> void:
 		return
 	tablero.revelar(c.x, c.y)
 	if tablero.celdas[c.x][c.y]["mina"]:
+		causa_muerte = "pisaste una mina"
 		_morir()
 	_dibujar_overlay()
-
 
 func _morir() -> void:
 	muerto = true
 	GameManager.morir()
-	print("MORISTE!!!")
+	_mostrar_resultado(false, causa_muerte)
 
 func _on_solicito_abanderar() -> void:
 	if muerto:
@@ -175,13 +184,14 @@ func _process(_delta: float) -> void:
 		return
 	for cazador in get_tree().get_nodes_in_group("cazadores"):
 		if jugador.global_position.distance_to(cazador.global_position) < 12.0:
+			causa_muerte = "atrapado por un cazador"
 			_morir()
 			break
 
 func _ganar() -> void:
 	muerto = true
 	GameManager.nivel_ganado()
-	print("VICTORIA: abanderaste todas las minas")
+	_mostrar_resultado(true, "")
 
 func _generar_layout(filas: int, columnas: int) -> Array:
 	var layout: Array = []
@@ -196,3 +206,20 @@ func _generar_layout(filas: int, columnas: int) -> Array:
 				linea += "."
 		layout.append(linea)
 	return layout
+
+func _mostrar_resultado(victoria: bool, motivo: String) -> void:
+	pantalla_resultado.visible = true
+	if victoria:
+		lbl_titulo.text = "VICTORIA"
+		lbl_titulo.add_theme_color_override("font_color", Color(0.3, 0.9, 0.5))
+		lbl_detalle.text = "Todas las minas neutralizadas"
+	else:
+		lbl_titulo.text = "GAME OVER"
+		lbl_titulo.add_theme_color_override("font_color", Color(0.9, 0.25, 0.25))
+		lbl_detalle.text = motivo
+
+func _on_reintentar() -> void:
+	get_tree().change_scene_to_file("res://scenes/01_juego.tscn")
+
+func _on_menu() -> void:
+	get_tree().change_scene_to_file("res://scenes/00_menu.tscn")

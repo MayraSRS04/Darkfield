@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://cmhjev1pjj3r0" path="res://scenes/juego.gd" id="1_2uc6o"]
 [ext_resource type="TileSet" uid="uid://i7ijb6r1478w" path="res://recursos/tilesets/mundo.tres" id="1_dlla0"]
 [ext_resource type="PackedScene" uid="uid://45610vclphqv" path="res://actors/jugador.tscn" id="3_oiwu5"]
-[ext_resource type="PackedScene" uid="uid://bjx4y5ow2yr3e" path="res://actors/Cazador.tscn" id="4_8bcx7"]
 [ext_resource type="Script" uid="uid://ena2mlpp2flb" path="res://scenes/camara_juego.gd" id="5_camara"]
 
 [node name="Juego" type="Node2D" unique_id=1902666549]
@@ -26,3 +25,47 @@ tile_set = ExtResource("1_dlla0")
 [node name="Jugador" parent="." unique_id=1797815940 instance=ExtResource("3_oiwu5")]
 collision_layer = 2
 
+[node name="PantallaResultado" type="CanvasLayer" parent="." unique_id=2074652216]
+layer = 10
+visible = false
+
+[node name="Fondo" type="ColorRect" parent="PantallaResultado" unique_id=306807740]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="Contenedor" type="VBoxContainer" parent="PantallaResultado" unique_id=4380807]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -100.0
+offset_right = 160.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="LblTitulo" type="Label" parent="PantallaResultado/Contenedor" unique_id=2076073716]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+
+[node name="LblDetalle" type="Label" parent="PantallaResultado/Contenedor" unique_id=361911077]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="BtnReintentar" type="Button" parent="PantallaResultado/Contenedor" unique_id=2105596994]
+layout_mode = 2
+text = "REINTENTAR"
+
+[node name="BtnMenu" type="Button" parent="PantallaResultado/Contenedor" unique_id=1066617620]
+layout_mode = 2
+text = "MENÚ PRINCIPAL"
