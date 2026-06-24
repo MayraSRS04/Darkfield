@@ -36,6 +36,7 @@ func _physics_process(delta: float) -> void:
 			moviendose = false
 	velocity = Vector2.ZERO
 	move_and_slide()
+	$Linterna.position = ultima_direccion * 6.0
 	queue_redraw()
 
 func _actualizar_estado(delta: float) -> void:
@@ -205,6 +206,7 @@ func _avanzar_ruta() -> void:
 	var dir := global_position.direction_to(pos_siguiente)
 	if dir.length() > 0.01:
 		ultima_direccion = dir
+	$Sprite2D.rotation = ultima_direccion.angle()
 	destino = pos_siguiente
 	moviendose = true
 

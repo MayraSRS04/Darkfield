@@ -5,6 +5,7 @@ signal solicito_abanderar
 
 var destino: Vector2
 var moviendose := false
+var ultima_direccion := Vector2.RIGHT
 
 func _ready() -> void:
 	destino = global_position
@@ -34,6 +35,8 @@ func _physics_process(delta: float) -> void:
 		if not get_parent().get_node("Paredes").get_cell_source_id(celda_destino) != -1:
 			destino = pos_destino
 			moviendose = true
+		ultima_direccion = direccion
+		$Sprite2D.rotation = ultima_direccion.angle()
 	velocity = Vector2.ZERO
 	move_and_slide()
 
