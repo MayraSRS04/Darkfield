@@ -110,7 +110,7 @@ func _sospechar(delta: float) -> void:
 				ruta = ruta_hacia
 				_avanzar_ruta()
 	else:
-		timer_sospecha -= delta * 1.5
+		timer_sospecha -= delta * 2.5
 		if timer_sospecha <= 0.0:
 			timer_sospecha = 0.0
 			estado = Estado.NORMAL
@@ -135,12 +135,6 @@ func _perseguir(delta: float) -> void:
 				ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
 				_avanzar_ruta()
 
-	if _ve_al_jugador():
-		estado = Estado.PERSIGUIENDO
-		timer_perdida = 0.0
-		ruta = []
-		GameManager.reportar_deteccion(true)
-		return
 	if not moviendose:
 		if ruta.is_empty() or _celda_actual() == _celda_de(ultima_pos_vista):
 			estado = Estado.REGRESA
