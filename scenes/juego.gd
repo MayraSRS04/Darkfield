@@ -151,7 +151,6 @@ func _celda_del_jugador() -> Vector2i:
 	var celda := suelo.local_to_map(jugador.position)
 	return Vector2i(celda.y, celda.x)
 
-
 func _on_solicito_revelar() -> void:
 	if muerto:
 		return
@@ -162,7 +161,11 @@ func _on_solicito_revelar() -> void:
 	if tablero.celdas[c.x][c.y]["mina"]:
 		causa_muerte = "pisaste una mina"
 		_morir()
+		return
 	_dibujar_overlay()
+	
+	if tablero.es_victoria():
+		_ganar()
 
 func _morir() -> void:
 	muerto = true

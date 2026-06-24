@@ -130,17 +130,15 @@ func minas_sin_abanderar() -> int:
 				faltan += 1
 	return faltan
 
-
 func es_victoria() -> bool:
 	for fila in range(filas):
 		for col in range(columnas):
+			if bloqueadas.has(Vector2i(fila, col)):
+				continue
 			var celda = celdas[fila][col]
-			if celda["mina"] and not celda["abanderada"]:
-				return false
-			if celda["abanderada"] and not celda["mina"]:
+			if not celda["mina"] and not celda["revelada"]:
 				return false
 	return true
-
 
 func imprimir() -> void:
 	for fila in range(filas):
