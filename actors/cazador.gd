@@ -22,6 +22,7 @@ func _ready() -> void:
 	inicio = global_position
 	destino = global_position
 	ultima_pos_vista = global_position
+	_configurar_linterna()
 
 func _physics_process(delta: float) -> void:
 	if _ve_al_jugador():
@@ -36,7 +37,8 @@ func _physics_process(delta: float) -> void:
 			moviendose = false
 	velocity = Vector2.ZERO
 	move_and_slide()
-	$Linterna.position = ultima_direccion * 6.0
+	$Linterna.rotation = ultima_direccion.angle()
+	$Linterna.position = ultima_direccion * 4.0
 	queue_redraw()
 
 func _actualizar_estado(delta: float) -> void:
@@ -299,8 +301,27 @@ func _draw() -> void:
 		puntos.append(Vector2(cos(angulo), sin(angulo)) * alcance_px)
 	puntos.append(Vector2.ZERO)
 	draw_polygon(puntos, PackedColorArray([_color_cono()]))
+	var color_luz := Color(0.75, 0.88, 1.0, 0.08)
+	draw_polygon(puntos, PackedColorArray([color_luz]))
 	draw_polyline(puntos, Color(1.0, 1.0, 1.0, 0.10), 0.8)
-	##draw_circle(Vector2.ZERO, 5.0, _color_estado())
 	if estado == Estado.SOSPECHANDO:
 		var progreso: float = minf(timer_sospecha / GameManager.TIEMPO_ESPERA_PATRULLA, 1.0)
 		draw_arc(Vector2.ZERO, 8.0, -PI / 2.0, -PI / 2.0 + progreso * TAU, 20, Color(1.0, 1.0, 0.2, 0.95), 2.0)
+
+
+func _configurar_linterna() -> void:
+	var tam := 128
+	var imagen := Image.create(tam, tam, false, Image.FORMAT_RGBA8)
+	var medio_angulo := deg_to_rad(GameManager.ANGULO_CONO)
+	for y: int in range(tam):
+		for x: int in range(tam):
+			var dir := Vector2(float(x) - tam / 2.0, float(y) - float(tam))
+			var dist := dir.length()
+			if dist > tam or dist < 1.0:
+				continue
+			var angulo: float = abs(wrapf(dir.angle() + PI / 2.0, -PI, PI))
+			if angulo > medio_angulo:
+				continue
+			var intensidad := 1.0 - (dist / float(tam))
+			imagen.set_pixel(x, y, Color(1.0, 1.0, 1.0, intensidad))
+	$Linterna.texture = ImageTexture.create_from_image(imagen)
