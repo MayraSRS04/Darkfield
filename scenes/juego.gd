@@ -10,6 +10,12 @@ extends Node2D
 @onready var lbl_detalle: Label = $PantallaResultado/Contenedor/LblDetalle
 @onready var btn_reintentar: Button = $PantallaResultado/Contenedor/BtnReintentar
 @onready var btn_menu: Button = $PantallaResultado/Contenedor/BtnMenu
+@onready var lbl_minas: Label = $HUD/BarraSuperior/LblMinas
+@onready var lbl_alerta: Label = $HUD/BarraSuperior/LblAlerta
+@onready var btn_pausa: Button = $HUD/BarraSuperior/BtnPausa
+@onready var pausa: CanvasLayer = $Pausa
+@onready var btn_reanudar: Button = $Pausa/Contenedor/BtnReanudar
+@onready var btn_menu_principal: Button = $Pausa/Contenedor/BtnMenuPrincipal
 
 const FUENTE_SUELO := 0
 const FUENTE_PARED := 1
@@ -65,6 +71,11 @@ func _ready() -> void:
 	
 	btn_reintentar.pressed.connect(_on_reintentar)
 	btn_menu.pressed.connect(_on_menu)
+	btn_pausa.pressed.connect(_on_pausa)
+	btn_reanudar.pressed.connect(_on_reanudar)
+	btn_menu_principal.pressed.connect(_on_menu)
+	GameManager.minas_restantes_cambiado.connect(_on_minas_cambiado)
+	GameManager.jugador_detectado.connect(_on_alerta_cambiada)
 
 func _pintar_mapa() -> void:
 	for fila in range(mapa.filas):
@@ -231,3 +242,29 @@ func _on_reintentar() -> void:
 
 func _on_menu() -> void:
 	get_tree().change_scene_to_file("res://scenes/00_menu.tscn")
+
+func _on_pausa() -> void:
+	pausa.visible = true
+	GameManager.pausar()
+
+func _on_reanudar() -> void:
+	pausa.visible = false
+	GameManager.reanudar()
+
+func _on_minas_cambiado(cantidad: int) -> void:
+	lbl_minas.text = "💣 " + str(cantidad)
+
+func _on_alerta_cambiada(detectado: bool) -> void:
+	if detectado:
+		lbl_alerta.text = "⚠ ALERTA"
+		lbl_alerta.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+	else:
+		lbl_alerta.text = "● SEGURO"
+		lbl_alerta.add_theme_color_override("font_color", Color(0.3, 0.9, 0.5))
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("pausa"):
+		if GameManager.estado == GameManager.Estado.JUGANDO:
+			_on_pausa()
+		elif GameManager.estado == GameManager.Estado.PAUSA:
+			_on_reanudar()
