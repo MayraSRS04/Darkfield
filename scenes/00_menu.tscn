@@ -105,3 +105,14 @@ text = "MEDIO"
 [node name="BtnDificil" type="Button" parent="PopupDificultad/Opciones" unique_id=2100000005]
 layout_mode = 2
 text = "DIFÍCIL"
+
+[node name="FadeEntrada" type="CanvasLayer" parent="." unique_id=-894967295]
+layer = 20
+
+[node name="Fondo" type="ColorRect" parent="FadeEntrada" unique_id=-894967294]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.027, 0.078, 0.119, 1)

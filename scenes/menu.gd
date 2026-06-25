@@ -8,6 +8,7 @@ extends Control
 @onready var btn_facil: Button = $PopupDificultad/Opciones/BtnFacil
 @onready var btn_medio: Button = $PopupDificultad/Opciones/BtnMedio
 @onready var btn_dificil: Button = $PopupDificultad/Opciones/BtnDificil
+@onready var fade_menu: ColorRect = $FadeEntrada/Fondo
 
 func _ready() -> void:
 	btn_partida_rapida.pressed.connect(_on_partida_rapida)
@@ -23,7 +24,7 @@ func _on_partida_rapida() -> void:
 
 func _on_dificultad(nivel: int) -> void:
 	GameManager.iniciar_nivel(nivel)
-	get_tree().change_scene_to_file("res://scenes/01_juego.tscn")
+	_fade_salida("res://scenes/01_juego.tscn")
 
 func _on_modo_historia() -> void:
 	pass
@@ -33,3 +34,10 @@ func _on_opciones() -> void:
 
 func _on_salir() -> void:
 	get_tree().quit()
+
+func _fade_salida(destino: String) -> void:
+	fade_menu.get_parent().visible = true
+	fade_menu.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(fade_menu, "modulate:a", 1.0, 0.5)
+	tween.tween_callback(func(): get_tree().change_scene_to_file(destino))

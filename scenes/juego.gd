@@ -16,6 +16,9 @@ extends Node2D
 @onready var pausa: CanvasLayer = $Pausa
 @onready var btn_reanudar: Button = $Pausa/Contenedor/BtnReanudar
 @onready var btn_menu_principal: Button = $Pausa/Contenedor/BtnMenuPrincipal
+@onready var fade_entrada: ColorRect = $FadeEntrada/Fondo
+@onready var oscuridad: CanvasModulate = $Oscuridad
+@onready var fade_fondo: ColorRect = $FadeEntrada/Fondo
 
 const FUENTE_SUELO := 0
 const FUENTE_PARED := 1
@@ -82,6 +85,9 @@ func _ready() -> void:
 	btn_menu_principal.pressed.connect(_on_menu)
 	GameManager.minas_restantes_cambiado.connect(_on_minas_cambiado)
 	GameManager.jugador_detectado.connect(_on_alerta_cambiada)
+	oscuridad.color = Color(0.38, 0.42, 0.55, 1)
+	_iniciar_fade()
+	
 
 func _pintar_mapa() -> void:
 	for fila in range(mapa.filas):
@@ -245,10 +251,10 @@ func _mostrar_resultado(victoria: bool, motivo: String) -> void:
 		lbl_detalle.text = motivo
 
 func _on_reintentar() -> void:
-	get_tree().change_scene_to_file("res://scenes/01_juego.tscn")
+	_fade_salida("res://scenes/01_juego.tscn")
 
 func _on_menu() -> void:
-	get_tree().change_scene_to_file("res://scenes/00_menu.tscn")
+	_fade_salida("res://scenes/00_menu.tscn")
 
 func _on_pausa() -> void:
 	pausa.visible = true
@@ -277,3 +283,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			_on_pausa()
 		elif GameManager.estado == GameManager.Estado.PAUSA:
 			_on_reanudar()
+	
+func _iniciar_fade() -> void:
+	fade_fondo.modulate.a = 1.0
+	var tween := create_tween()
+	tween.tween_property(fade_fondo, "modulate:a", 0.0, 0.8)
+	tween.tween_callback(func(): fade_fondo.get_parent().visible = false)
+
+func _fade_salida(destino: String) -> void:
+	fade_fondo.get_parent().visible = true
+	fade_fondo.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(fade_fondo, "modulate:a", 1.0, 0.5)
+	tween.tween_callback(func(): get_tree().change_scene_to_file(destino))

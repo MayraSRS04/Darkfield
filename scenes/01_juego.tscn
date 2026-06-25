@@ -136,3 +136,17 @@ text = "VOLVER AL JUEGO"
 [node name="BtnMenuPrincipal" type="Button" parent="Pausa/Contenedor" unique_id=1538357895]
 layout_mode = 2
 text = "SALIR DE LA PARTIDA"
+
+[node name="Oscuridad" type="CanvasModulate" parent="." unique_id=1244061730]
+color = Color(0.08, 0.1, 0.18, 1)
+
+[node name="FadeEntrada" type="CanvasLayer" parent="." unique_id=1169118498]
+layer = 20
+
+[node name="Fondo" type="ColorRect" parent="FadeEntrada" unique_id=353787353]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.027570263, 0.0780736, 0.11987748, 1)
