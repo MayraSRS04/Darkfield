@@ -162,7 +162,7 @@ func _perseguir(delta: float) -> void:
 			_avanzar_ruta(delta)
 		return
 	timer_perdida += delta
-	if _celda_actual() == _celda_de(ultima_pos_vista) or timer_perdida >= 4.0:
+	if _celda_actual() == _celda_de(ultima_pos_vista) or timer_perdida >= 0.3:
 		estado = Estado.INVESTIGANDO
 		ruta = []
 		moviendose = false
@@ -241,9 +241,15 @@ func _avanzar_ruta(_delta: float) -> void:
 		if otro == self:
 			continue
 		if otro.global_position.distance_to(pos_siguiente) < 14.0:
-			if get_instance_id() > otro.get_instance_id():
-				ruta = []
-				return
+			ruta = []
+			return
+	for id in GameManager.celdas_reservadas:
+		if id == get_instance_id():
+			continue
+		if GameManager.celdas_reservadas[id].distance_to(pos_siguiente) < 14.0:
+			ruta = []
+			return
+	GameManager.celdas_reservadas[get_instance_id()] = pos_siguiente
 	ruta.remove_at(0)
 	var dir := global_position.direction_to(pos_siguiente)
 	if dir.length() > 0.01:
