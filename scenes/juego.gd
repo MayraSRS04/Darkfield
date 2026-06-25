@@ -81,6 +81,7 @@ func _ready() -> void:
 	btn_menu.pressed.connect(_on_menu)
 	btn_pausa.pressed.connect(_on_pausa)
 	btn_reanudar.pressed.connect(_on_reanudar)
+	GameManager.estado_cambiado.connect(_on_estado_cambiado)
 	btn_menu_principal.pressed.connect(_on_menu)
 	GameManager.minas_restantes_cambiado.connect(_on_minas_cambiado)
 	GameManager.jugador_detectado.connect(_on_alerta_cambiada)
@@ -195,8 +196,21 @@ func _on_solicito_revelar() -> void:
 
 func _morir() -> void:
 	muerto = true
+	_congelar_actores()
 	GameManager.morir()
 	_mostrar_resultado(false, causa_muerte)
+
+func _ganar() -> void:
+	muerto = true
+	_congelar_actores()
+	GameManager.nivel_ganado()
+	_mostrar_resultado(true, "")
+
+func _congelar_actores() -> void:
+	jugador.set_physics_process(false)
+	jugador.set_process_unhandled_input(false)
+	for c in get_tree().get_nodes_in_group("cazadores"):
+		c.set_physics_process(false)
 
 func _on_solicito_abanderar() -> void:
 	if muerto:
@@ -216,12 +230,6 @@ func _process(_delta: float) -> void:
 			if jugador.global_position.distance_to(cazador.global_position) < 12.0:
 				causa_muerte = "atrapado por un cazador"
 				_morir()
-				break
-
-func _ganar() -> void:
-	muerto = true
-	GameManager.nivel_ganado()
-	_mostrar_resultado(true, "")
 
 func _generar_layout(filas: int, columnas: int) -> Array:
 	var layout: Array = []
@@ -249,12 +257,15 @@ func _mostrar_resultado(victoria: bool, motivo: String) -> void:
 		lbl_detalle.text = motivo
 
 func _on_reintentar() -> void:
+	GameManager.iniciar_nivel(GameManager.nivel_actual)
 	_fade_salida("res://scenes/01_juego.tscn")
 
 func _on_menu() -> void:
 	_fade_salida("res://scenes/00_menu.tscn")
 
 func _on_pausa() -> void:
+	if muerto:
+		return
 	pausa.visible = true
 	get_tree().paused = true
 	GameManager.pausar()
@@ -263,6 +274,10 @@ func _on_reanudar()-> void:
 	pausa.visible = false
 	get_tree().paused = false
 	GameManager.reanudar()
+
+func _on_estado_cambiado(nuevo: GameManager.Estado) -> void:
+	if nuevo == GameManager.Estado.JUGANDO:
+		pausa.visible = false
 
 func _on_minas_cambiado(cantidad: int) -> void:
 	lbl_minas.text = "🚩 " + str(cantidad)
@@ -276,11 +291,8 @@ func _on_alerta_cambiada(detectado: bool) -> void:
 		lbl_alerta.add_theme_color_override("font_color", Color(0.3, 0.9, 0.5))
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pausa"):
-		if GameManager.estado == GameManager.Estado.JUGANDO:
-			_on_pausa()
-		elif GameManager.estado == GameManager.Estado.PAUSA:
-			_on_reanudar()
+	if event.is_action_pressed("pausa") and not muerto and GameManager.estado == GameManager.Estado.JUGANDO:
+		_on_pausa()
 	
 func _iniciar_fade() -> void:
 	fade_fondo.modulate.a = 1.0
@@ -289,6 +301,7 @@ func _iniciar_fade() -> void:
 	tween.tween_callback(func(): fade_fondo.get_parent().visible = false)
 
 func _fade_salida(destino: String) -> void:
+	get_tree().paused = false
 	fade_fondo.get_parent().visible = true
 	fade_fondo.modulate.a = 0.0
 	var tween := create_tween()

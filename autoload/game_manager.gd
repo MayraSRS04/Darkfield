@@ -36,6 +36,7 @@ func _ready() -> void:
 func iniciar_nivel(indice: int) -> void:
 	nivel_actual = indice
 	get_tree().paused = false
+	celdas_reservadas.clear()
 	_cambiar_estado(Estado.JUGANDO)
 
 

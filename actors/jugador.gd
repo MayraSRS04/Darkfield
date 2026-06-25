@@ -32,7 +32,7 @@ func _physics_process(delta: float) -> void:
 		var celda_actual: Vector2i = get_parent().get_node("Suelo").local_to_map(global_position)
 		var celda_destino: Vector2i = celda_actual + Vector2i(direccion)
 		var pos_destino: Vector2 = get_parent().get_node("Suelo").map_to_local(celda_destino)
-		if not get_parent().get_node("Paredes").get_cell_source_id(celda_destino) != -1:
+		if get_parent().get_node("Paredes").get_cell_source_id(celda_destino) == -1:
 			destino = pos_destino
 			moviendose = true
 		ultima_direccion = direccion
