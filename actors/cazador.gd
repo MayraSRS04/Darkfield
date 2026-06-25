@@ -24,7 +24,6 @@ func _ready() -> void:
 	inicio = global_position
 	destino = global_position
 	ultima_pos_vista = global_position
-	call_deferred("_configurar_linterna", GameManager.ANGULO_CONO)
 	$AreaContacto.body_entered.connect(_on_contacto)
 
 func _physics_process(delta: float) -> void:
@@ -49,30 +48,15 @@ func _physics_process(delta: float) -> void:
 				ruta = []
 				break
 
-	if estado != ultimo_estado_linterna:
-		ultimo_estado_linterna = estado
-		match estado:
-			Estado.SOSPECHANDO:
-				_configurar_linterna(GameManager.ANGULO_CONO * 1.5)
-			Estado.PERSIGUIENDO, Estado.INVESTIGANDO:
-				_configurar_linterna(GameManager.ANGULO_CONO * 2.2)
-			_:
-				_configurar_linterna(GameManager.ANGULO_CONO)
-
 	$Linterna.rotation = ultima_direccion.angle() + PI / 2.0
 	match estado:
 		Estado.SOSPECHANDO:
-			$Linterna.energy = 1.4
-			$Linterna.texture_scale = 0.33
-			$Linterna.position = ultima_direccion * 21.0
-		Estado.PERSIGUIENDO, Estado.INVESTIGANDO:
 			$Linterna.energy = 1.8
-			$Linterna.texture_scale = 0.36
-			$Linterna.position = ultima_direccion * 21.0 * (0.36 / 0.3)
+		Estado.PERSIGUIENDO, Estado.INVESTIGANDO:
+			$Linterna.energy = 2.5
 		_:
-			$Linterna.energy = 0.9
-			$Linterna.texture_scale = 0.3
-			$Linterna.position = ultima_direccion * 21.0
+			$Linterna.energy = 1.2
+	$Linterna.position = Vector2.ZERO
 
 	queue_redraw()
 
@@ -367,27 +351,6 @@ func _draw() -> void:
 		var progreso: float = minf(timer_sospecha / GameManager.TIEMPO_ESPERA_PATRULLA, 1.0)
 		draw_arc(Vector2.ZERO, 8.0, -PI / 2.0, -PI / 2.0 + progreso * TAU, 20, Color(1.0, 1.0, 0.2, 0.95), 2.0)
 
-func _configurar_linterna(angulo_cono: float) -> void:
-	if not is_inside_tree() or $Linterna == null:
-		return
-	var tam := 128
-	var imagen := Image.create(tam, tam, false, Image.FORMAT_RGBA8)
-	var medio_angulo := deg_to_rad(angulo_cono)
-	for y: int in range(tam):
-		for x: int in range(tam):
-			var dir := Vector2(float(x) - tam / 2.0, float(y) - float(tam))
-			var dist := dir.length()
-			if dist > tam or dist < 1.0:
-				continue
-			var angulo: float = abs(wrapf(dir.angle() + PI / 2.0, -PI, PI))
-			if angulo > medio_angulo:
-				continue
-			var intensidad := 1.0 - (dist / float(tam))
-			imagen.set_pixel(x, y, Color(1.0, 1.0, 1.0, intensidad))
-	if imagen.get_pixel(tam / 2, tam / 2).a == 0.0:
-		imagen.set_pixel(tam / 2, tam / 2, Color(1.0, 1.0, 1.0, 0.01))
-	$Linterna.texture = ImageTexture.create_from_image(imagen)
-	
 func _on_contacto(cuerpo: Node2D) -> void:
 	if cuerpo != jugador:
 		return

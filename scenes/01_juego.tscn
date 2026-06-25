@@ -138,7 +138,7 @@ layout_mode = 2
 text = "SALIR DE LA PARTIDA"
 
 [node name="Oscuridad" type="CanvasModulate" parent="." unique_id=1244061730]
-color = Color(0.38, 0.42, 0.55, 1)
+color = Color(0.55, 0.58, 0.68, 1)
 
 [node name="FadeEntrada" type="CanvasLayer" parent="." unique_id=1169118498]
 layer = 20

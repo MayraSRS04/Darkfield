@@ -84,7 +84,6 @@ func _ready() -> void:
 	btn_menu_principal.pressed.connect(_on_menu)
 	GameManager.minas_restantes_cambiado.connect(_on_minas_cambiado)
 	GameManager.jugador_detectado.connect(_on_alerta_cambiada)
-	oscuridad.color = Color(0.38, 0.42, 0.55, 1)
 	_iniciar_fade()
 	
 

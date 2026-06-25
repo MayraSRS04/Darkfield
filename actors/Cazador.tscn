@@ -6,13 +6,6 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_3vxol"]
 radius = 6.0
 
-[sub_resource type="Gradient" id="Gradient_luz"]
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_luz"]
-gradient = SubResource("Gradient_luz")
-fill = 1
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_contacto"]
 
 [node name="Cazador" type="CharacterBody2D" unique_id=405291502]
@@ -29,15 +22,13 @@ scale = Vector2(0.21153846, 0.25581396)
 texture = ExtResource("2_3vxol")
 
 [node name="Linterna" type="PointLight2D" parent="." unique_id=-2094967295]
+blend_mode = 1
+energy = 1.2
+texture_scale = 0.5
 color = Color(1.0, 0.92, 0.75, 1)
 shadow_enabled = true
 shadow_color = Color(0, 0, 0, 0.85)
-texture = SubResource("GradientTexture2D_luz")
-texture_scale = 0.6
-blend_mode = 1
-energy = 2.5
 shadow_filter = 0
-
 
 [node name="AreaContacto" type="Area2D" parent="." unique_id=-994967295]
 collision_layer = 0
