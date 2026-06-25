@@ -16,7 +16,6 @@ extends Node2D
 @onready var pausa: CanvasLayer = $Pausa
 @onready var btn_reanudar: Button = $Pausa/Contenedor/BtnReanudar
 @onready var btn_menu_principal: Button = $Pausa/Contenedor/BtnMenuPrincipal
-@onready var fade_entrada: ColorRect = $FadeEntrada/Fondo
 @onready var oscuridad: CanvasModulate = $Oscuridad
 @onready var fade_fondo: ColorRect = $FadeEntrada/Fondo
 

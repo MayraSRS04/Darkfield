@@ -18,6 +18,7 @@ func _ready() -> void:
 	btn_facil.pressed.connect(_on_dificultad.bind(0))
 	btn_medio.pressed.connect(_on_dificultad.bind(1))
 	btn_dificil.pressed.connect(_on_dificultad.bind(2))
+	_iniciar_fade()
 
 func _on_partida_rapida() -> void:
 	popup_dificultad.visible = not popup_dificultad.visible
@@ -41,3 +42,9 @@ func _fade_salida(destino: String) -> void:
 	var tween := create_tween()
 	tween.tween_property(fade_menu, "modulate:a", 1.0, 0.5)
 	tween.tween_callback(func(): get_tree().change_scene_to_file(destino))
+	
+func _iniciar_fade() -> void:
+	fade_menu.modulate.a = 1.0
+	var tween := create_tween()
+	tween.tween_property(fade_menu, "modulate:a", 0.0, 0.8)
+	tween.tween_callback(func(): fade_menu.get_parent().visible = false)
