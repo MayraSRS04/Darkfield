@@ -7,14 +7,14 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_nxmki"]
 radius = 6.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_luz"]
+[sub_resource type="Gradient" id="Gradient_luz"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 
-[node name="LuzJugador" type="PointLight2D" parent="."]
-blend_mode = 1
-energy = 1.8
-texture_scale = 0.45
-color = Color(0.85, 0.90, 1.0, 1)
-shadow_enabled = false
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_luz"]
+gradient = SubResource("Gradient_luz")
+fill = 1
+width = 64
+height = 64
 
 [node name="Jugador" type="CharacterBody2D" unique_id=1797815940]
 script = ExtResource("1_xye6u")
@@ -29,3 +29,11 @@ shape = SubResource("CircleShape2D_nxmki")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1441707801]
 script = ExtResource("3_camara")
+
+[node name="LuzJugador" type="PointLight2D" parent="."]
+texture = SubResource("GradientTexture2D_luz")
+blend_mode = 1
+energy = 1.8
+texture_scale = 0.45
+color = Color(0.85, 0.9, 1.0, 1)
+shadow_enabled = false
