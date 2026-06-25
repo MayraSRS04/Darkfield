@@ -3,13 +3,9 @@
 [ext_resource type="Script" uid="uid://cmhjev1pjj3r0" path="res://scenes/juego.gd" id="1_2uc6o"]
 [ext_resource type="TileSet" uid="uid://i7ijb6r1478w" path="res://recursos/tilesets/mundo.tres" id="1_dlla0"]
 [ext_resource type="PackedScene" uid="uid://45610vclphqv" path="res://actors/jugador.tscn" id="3_oiwu5"]
-[ext_resource type="Script" uid="uid://ena2mlpp2flb" path="res://scenes/camara_juego.gd" id="5_camara"]
 
 [node name="Juego" type="Node2D" unique_id=1902666549]
 script = ExtResource("1_2uc6o")
-
-[node name="Jugador#Camara" type="Camera2D" parent="." unique_id=2001000001]
-script = ExtResource("5_camara")
 
 [node name="Suelo" type="TileMapLayer" parent="." unique_id=1250863577]
 tile_set = ExtResource("1_dlla0")

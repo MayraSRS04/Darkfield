@@ -227,14 +227,14 @@ func _avanzar_ruta(delta: float) -> void:
 	for otro in get_tree().get_nodes_in_group("cazadores"):
 		if otro == self:
 			continue
-		var celda_otro := tilemap.local_to_map(otro.global_position)
-		var celda_destino := Vector2i(siguiente.y, siguiente.x)
-		if celda_otro == celda_destino:
-			timer_bloqueado += delta
-			if timer_bloqueado >= 0.5:
+		if otro.global_position.distance_to(pos_siguiente) < 14.0:
+			if get_instance_id() < otro.get_instance_id():
+				timer_bloqueado += delta
+				if timer_bloqueado < 0.6:
+					return
 				timer_bloqueado = 0.0
 				ruta = []
-			return
+				return
 	timer_bloqueado = 0.0
 	ruta.remove_at(0)
 	var dir := global_position.direction_to(pos_siguiente)

@@ -32,6 +32,8 @@ func _ready() -> void:
 	tablero.colocar_minas(cfg["minas"], Vector2i(1, 1), mapa.celdas_caminables())
 	
 	_pintar_mapa()
+	#print("hijos del jugador: ", jugador.get_children())
+	jugador.get_node("Camera2D").configurar_limites(suelo)
 	
 	jugador.position = suelo.map_to_local(Vector2i(1, 1))
 	jugador.solicito_revelar.connect(_on_solicito_revelar)

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://45610vclphqv"]
 
 [ext_resource type="Script" uid="uid://b7y0vqsryi2sp" path="res://actors/jugador.gd" id="1_xye6u"]
+[ext_resource type="Script" uid="uid://ena2mlpp2flb" path="res://scenes/camara_juego.gd" id="3_camara"]
 [ext_resource type="Texture2D" uid="uid://c87xqiouhdc68" path="res://recursos/sprites/manBlue_hold.png" id="2_xye6u"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_nxmki"]
@@ -18,4 +19,4 @@ texture = ExtResource("2_xye6u")
 shape = SubResource("CircleShape2D_nxmki")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1441707801]
-zoom = Vector2(3, 3)
+script = ExtResource("3_camara")
