@@ -289,10 +289,6 @@ func _on_alerta_cambiada(detectado: bool) -> void:
 	else:
 		lbl_alerta.text = "● SEGURO"
 		lbl_alerta.add_theme_color_override("font_color", Color(0.3, 0.9, 0.5))
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pausa") and not muerto and GameManager.estado == GameManager.Estado.JUGANDO:
-		_on_pausa()
 	
 func _iniciar_fade() -> void:
 	fade_fondo.modulate.a = 1.0

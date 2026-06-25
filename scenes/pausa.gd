@@ -1,6 +1,9 @@
 extends CanvasLayer
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pausa") and GameManager.estado == GameManager.Estado.PAUSA:
-		get_tree().paused = false
-		GameManager.reanudar()
+func _process(_delta: float) -> void:
+	if not Input.is_action_just_pressed("pausa"):
+		return
+	if GameManager.estado == GameManager.Estado.JUGANDO:
+		get_parent()._on_pausa()
+	elif GameManager.estado == GameManager.Estado.PAUSA:
+		get_parent()._on_reanudar()
