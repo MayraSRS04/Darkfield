@@ -160,22 +160,20 @@ func _perseguir(delta: float) -> void:
 		if not moviendose:
 			ruta = _calcular_ruta(_celda_actual(), _celda_de(jugador.global_position))
 			_avanzar_ruta(delta)
-	else:
-		timer_perdida += delta
-		if timer_perdida >= 4.0:
+		return
+	timer_perdida += delta
+	if _celda_actual() == _celda_de(ultima_pos_vista) or timer_perdida >= 4.0:
+		estado = Estado.INVESTIGANDO
+		ruta = []
+		moviendose = false
+		GameManager.reportar_deteccion(false)
+		return
+	if not moviendose:
+		ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
+		if ruta.is_empty():
 			estado = Estado.INVESTIGANDO
-			ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
 			moviendose = false
 			GameManager.reportar_deteccion(false)
-		else:
-			if not moviendose:
-				ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
-				_avanzar_ruta(delta)
-
-	if not moviendose:
-		if ruta.is_empty() or _celda_actual() == _celda_de(ultima_pos_vista):
-			estado = Estado.REGRESA
-			ruta = []
 			return
 		_avanzar_ruta(delta)
 
@@ -187,10 +185,17 @@ func _investigar(delta: float) -> void:
 		moviendose = false
 		GameManager.reportar_deteccion(true)
 		return
+	if _celda_actual() == _celda_de(ultima_pos_vista):
+		estado = Estado.REGRESA
+		ruta = []
+		moviendose = false
+		return
 	if not moviendose:
-		if ruta.is_empty() or _celda_actual() == _celda_de(ultima_pos_vista):
+		if ruta.is_empty():
+			ruta = _calcular_ruta(_celda_actual(), _celda_de(ultima_pos_vista))
+		if ruta.is_empty():
 			estado = Estado.REGRESA
-			ruta = []
+			moviendose = false
 			return
 		_avanzar_ruta(delta)
 
@@ -238,7 +243,7 @@ func _avanzar_ruta(_delta: float) -> void:
 		if otro.global_position.distance_to(pos_siguiente) < 14.0:
 			if get_instance_id() > otro.get_instance_id():
 				ruta = []
-			return
+				return
 	ruta.remove_at(0)
 	var dir := global_position.direction_to(pos_siguiente)
 	if dir.length() > 0.01:
