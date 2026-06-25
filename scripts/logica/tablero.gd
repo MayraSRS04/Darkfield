@@ -157,3 +157,11 @@ func imprimir() -> void:
 				linea += str(celda["numero"]) + " "
 		print(linea)
 	print("")
+
+func contar_banderas() -> int:
+	var total := 0
+	for fila in range(filas):
+		for col in range(columnas):
+			if celdas[fila][col]["abanderada"]:
+				total += 1
+	return total

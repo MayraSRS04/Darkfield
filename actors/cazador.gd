@@ -40,6 +40,13 @@ func _physics_process(delta: float) -> void:
 			GameManager.celdas_reservadas.erase(get_instance_id())
 	velocity = Vector2.ZERO
 	move_and_slide()
+	if not moviendose and not ruta.is_empty():
+		for otro in get_tree().get_nodes_in_group("cazadores"):
+			if otro == self:
+				continue
+			if global_position.distance_to(otro.global_position) < 20.0:
+				ruta = []
+				break
 
 	if estado != ultimo_estado_linterna:
 		ultimo_estado_linterna = estado
@@ -219,7 +226,7 @@ func _planear_ruta_aleatoria() -> void:
 			ruta = posible
 			return
 
-func _avanzar_ruta(delta: float) -> void:
+func _avanzar_ruta(_delta: float) -> void:
 	if ruta.is_empty():
 		return
 	var siguiente: Vector2i = ruta[0]
@@ -229,7 +236,8 @@ func _avanzar_ruta(delta: float) -> void:
 		if otro == self:
 			continue
 		if otro.global_position.distance_to(pos_siguiente) < 14.0:
-			ruta = []
+			if get_instance_id() > otro.get_instance_id():
+				ruta = []
 			return
 	ruta.remove_at(0)
 	var dir := global_position.direction_to(pos_siguiente)
@@ -362,4 +370,6 @@ func _configurar_linterna(angulo_cono: float) -> void:
 				continue
 			var intensidad := 1.0 - (dist / float(tam))
 			imagen.set_pixel(x, y, Color(1.0, 1.0, 1.0, intensidad))
+	if imagen.get_pixel(tam / 2, tam / 2).a == 0.0:
+		imagen.set_pixel(tam / 2, tam / 2, Color(1.0, 1.0, 1.0, 0.01))
 	$Linterna.texture = ImageTexture.create_from_image(imagen)

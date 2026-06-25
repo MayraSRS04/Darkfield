@@ -54,20 +54,26 @@ func _ready() -> void:
 		cazador.jugador = jugador
 		cazador.mapa = mapa
 		var caminables := mapa.celdas_caminables()
-		caminables = caminables.filter(func(c): return not celdas_usadas.has(c))
-		if not caminables.is_empty():
-			var celda: Vector2i = caminables[randi() % caminables.size()]
-			celdas_usadas.append(celda)
-			cazador.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
-			cazador.inicio = cazador.global_position
-			cazador.destino = cazador.global_position
+		var disponibles := caminables.filter(func(c: Vector2i) -> bool:
+			for usada in celdas_usadas:
+				if abs(c.x - usada.x) + abs(c.y - usada.y) < 4:
+					return false
+			return true
+		)
+		if disponibles.is_empty():
+			disponibles = caminables
+		var celda: Vector2i = disponibles[randi() % disponibles.size()]
+		celdas_usadas.append(celda)
+		cazador.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
+		cazador.inicio = cazador.global_position
+		cazador.destino = cazador.global_position
 	
 	tablero.revelar(1, 1)
 	#_forzar_revelar_fila(4)
 	#tablero.abanderar(7, 4)
 
 	_dibujar_overlay()
-	GameManager.actualizar_minas_restantes(tablero.minas_sin_abanderar())
+	GameManager.actualizar_minas_restantes(tablero.contar_minas())
 	
 	btn_reintentar.pressed.connect(_on_reintentar)
 	btn_menu.pressed.connect(_on_menu)
@@ -194,7 +200,7 @@ func _on_solicito_abanderar() -> void:
 	var c := _celda_del_jugador()
 	tablero.abanderar(c.x, c.y)
 	_dibujar_overlay()
-	GameManager.actualizar_minas_restantes(tablero.minas_sin_abanderar())
+	GameManager.actualizar_minas_restantes(tablero.contar_minas() - tablero.contar_banderas())
 	if tablero.es_victoria():
 		_ganar()
 		
@@ -245,14 +251,16 @@ func _on_menu() -> void:
 
 func _on_pausa() -> void:
 	pausa.visible = true
+	get_tree().paused = true
 	GameManager.pausar()
 
-func _on_reanudar() -> void:
+func _on_reanudar()-> void:
 	pausa.visible = false
+	get_tree().paused = false
 	GameManager.reanudar()
 
 func _on_minas_cambiado(cantidad: int) -> void:
-	lbl_minas.text = "💣 " + str(cantidad)
+	lbl_minas.text = "🚩 " + str(cantidad)
 
 func _on_alerta_cambiada(detectado: bool) -> void:
 	if detectado:

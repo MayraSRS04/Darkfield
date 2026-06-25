@@ -74,31 +74,33 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -220.0
+offset_left = -280.0
 offset_top = 8.0
 offset_right = -8.0
-offset_bottom = 36.0
+offset_bottom = 44.0
 theme_override_constants/separation = 16
 
 [node name="LblMinas" type="Label" parent="HUD/BarraSuperior"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(0.6, 0.78, 0.93, 1)
-text = "💣 0"
+text = "🚩 0"
 
 [node name="LblAlerta" type="Label" parent="HUD/BarraSuperior"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(0.3, 0.9, 0.5, 1)
 text = "● SEGURO"
 
 [node name="BtnPausa" type="Button" parent="HUD/BarraSuperior"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "II"
 
 [node name="Pausa" type="CanvasLayer" parent="."]
 layer = 8
 visible = false
+process_mode = 3
 
 [node name="Fondo" type="ColorRect" parent="Pausa"]
 anchors_preset = 15
