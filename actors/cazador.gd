@@ -37,6 +37,7 @@ func _physics_process(delta: float) -> void:
 		if global_position.distance_to(destino) < UMBRAL_LLEGADA:
 			global_position = destino
 			moviendose = false
+			GameManager.celdas_reservadas.erase(get_instance_id())
 	velocity = Vector2.ZERO
 	move_and_slide()
 
@@ -228,14 +229,8 @@ func _avanzar_ruta(delta: float) -> void:
 		if otro == self:
 			continue
 		if otro.global_position.distance_to(pos_siguiente) < 14.0:
-			if get_instance_id() < otro.get_instance_id():
-				timer_bloqueado += delta
-				if timer_bloqueado < 0.6:
-					return
-				timer_bloqueado = 0.0
-				ruta = []
-				return
-	timer_bloqueado = 0.0
+			ruta = []
+			return
 	ruta.remove_at(0)
 	var dir := global_position.direction_to(pos_siguiente)
 	if dir.length() > 0.01:
@@ -261,6 +256,16 @@ func _calcular_ruta(desde: Vector2i, hasta: Vector2i) -> Array:
 		return []
 	if not mapa.es_caminable(hasta.x, hasta.y):
 		return []
+	var ocupadas: Dictionary = {}
+	var tilemap: TileMapLayer = get_parent().get_node("Suelo")
+	for otro in get_tree().get_nodes_in_group("cazadores"):
+		if otro == self:
+			continue
+		var c := tilemap.local_to_map(otro.global_position)
+		ocupadas[Vector2i(c.y, c.x)] = true
+		if otro.moviendose:
+			var cd := tilemap.local_to_map(otro.destino)
+			ocupadas[Vector2i(cd.y, cd.x)] = true
 	var cola: Array = [desde]
 	var vino_de: Dictionary = {desde: desde}
 	while not cola.is_empty():
@@ -272,6 +277,8 @@ func _calcular_ruta(desde: Vector2i, hasta: Vector2i) -> Array:
 			if vino_de.has(vecino):
 				continue
 			if not mapa.es_caminable(vecino.x, vecino.y):
+				continue
+			if ocupadas.has(vecino) and vecino != hasta:
 				continue
 			vino_de[vecino] = actual
 			cola.append(vecino)

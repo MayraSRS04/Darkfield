@@ -27,7 +27,7 @@ signal jugador_murio
 var estado: Estado = Estado.MENU
 var nivel_actual: int = 0
 var minas_restantes: int = 0
-
+var celdas_reservadas: Dictionary = {}
 
 func _ready() -> void:
 	print("GameManager listo")
