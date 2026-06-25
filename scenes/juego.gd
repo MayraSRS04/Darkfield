@@ -208,10 +208,11 @@ func _process(_delta: float) -> void:
 	if muerto:
 		return
 	for cazador in get_tree().get_nodes_in_group("cazadores"):
-		if jugador.global_position.distance_to(cazador.global_position) < 12.0:
-			causa_muerte = "atrapado por un cazador"
-			_morir()
-			break
+		if cazador.estado == cazador.Estado.PERSIGUIENDO:
+			if jugador.global_position.distance_to(cazador.global_position) < 12.0:
+				causa_muerte = "atrapado por un cazador"
+				_morir()
+				break
 
 func _ganar() -> void:
 	muerto = true

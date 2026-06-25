@@ -24,7 +24,8 @@ func _ready() -> void:
 	inicio = global_position
 	destino = global_position
 	ultima_pos_vista = global_position
-	_configurar_linterna(GameManager.ANGULO_CONO)
+	call_deferred("_configurar_linterna", GameManager.ANGULO_CONO)
+	$AreaContacto.body_entered.connect(_on_contacto)
 
 func _physics_process(delta: float) -> void:
 	if _ve_al_jugador():
@@ -367,6 +368,8 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, 8.0, -PI / 2.0, -PI / 2.0 + progreso * TAU, 20, Color(1.0, 1.0, 0.2, 0.95), 2.0)
 
 func _configurar_linterna(angulo_cono: float) -> void:
+	if not is_inside_tree() or $Linterna == null:
+		return
 	var tam := 128
 	var imagen := Image.create(tam, tam, false, Image.FORMAT_RGBA8)
 	var medio_angulo := deg_to_rad(angulo_cono)
@@ -384,3 +387,18 @@ func _configurar_linterna(angulo_cono: float) -> void:
 	if imagen.get_pixel(tam / 2, tam / 2).a == 0.0:
 		imagen.set_pixel(tam / 2, tam / 2, Color(1.0, 1.0, 1.0, 0.01))
 	$Linterna.texture = ImageTexture.create_from_image(imagen)
+	
+func _on_contacto(cuerpo: Node2D) -> void:
+	if cuerpo != jugador:
+		return
+	if estado == Estado.PERSIGUIENDO:
+		return
+	var dir := (jugador.global_position - global_position).normalized()
+	if dir.length() > 0.01:
+		ultima_direccion = dir
+	estado = Estado.PERSIGUIENDO
+	timer_perdida = 0.0
+	ruta = []
+	moviendose = false
+	GameManager.reportar_deteccion(true)
+	queue_redraw()
