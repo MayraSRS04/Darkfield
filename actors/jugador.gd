@@ -22,6 +22,7 @@ func _process(delta: float) -> void:
 
 func _ready() -> void:
 	destino = global_position
+	add_to_group("jugador")
 
 func _physics_process(delta: float) -> void:
 	if moviendose:

@@ -64,9 +64,9 @@ func _ready() -> void:
 	_pintar_mapa()
 	jugador.get_node("Camera2D").configurar_limites(suelo)
 	
-	var celda_spawn := _primera_celda_caminable()
-	jugador.position = suelo.map_to_local(Vector2i(celda_spawn.y, celda_spawn.x))
-	tablero.revelar(celda_spawn.x, celda_spawn.y)
+	jugador.position = suelo.map_to_local(Vector2i(spawn.y, spawn.x))
+	tablero.revelar(spawn.x, spawn.y)
+	
 	jugador.solicito_revelar.connect(_on_solicito_revelar)
 	jugador.solicito_abanderar.connect(_on_solicito_abanderar)
 	
@@ -273,8 +273,7 @@ func _process(delta: float) -> void:
 			item.intentar_recoger(jugador.global_position)
 		if _cooldown_disparo > 0.0:
 			_cooldown_disparo -= delta
-		if fase_boss_activa and Input.is_action_pressed("ui_accept"):
-			_disparar()
+
 	for cazador in get_tree().get_nodes_in_group("cazadores"):
 		if cazador.estado == cazador.Estado.PERSIGUIENDO:
 			if jugador.global_position.distance_to(cazador.global_position) < 12.0:
@@ -412,11 +411,10 @@ func _on_usar_item() -> void:
 				escudo_activo = true
 		GameManager.TipoItem.PISTOLA:
 			if fase_boss_activa:
-				_disparar()
+				_disparar_con(GameManager.TipoItem.PISTOLA)
 		GameManager.TipoItem.BAZUKA:
 			if fase_boss_activa:
-				item_seleccionado = GameManager.inventario.find(GameManager.TipoItem.BAZUKA)
-				_disparar()
+				_disparar_con(GameManager.TipoItem.BAZUKA)
 
 func _activar_radar() -> void:
 	var celda_j := _celda_del_jugador()
@@ -449,6 +447,14 @@ func _descongelar_cazadores() -> void:
 		c.set_physics_process(true)
 
 func _mostrar_resultado_historia() -> void:
+	var es_ultimo := GameManager.nivel_actual >= GameManager.CONFIGURACIONES.size() - 1
+	if es_ultimo and boss_derrotado:
+		lbl_titulo_h.text = "MISIÓN CUMPLIDA"
+		lbl_titulo_h.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1))
+		lbl_items_ganados.text = "El General Karimi ha sido eliminado.\nIran queda atrás."
+		btn_continuar.visible = false
+		pantalla_resultado_historia.visible = true
+		return
 	var items_ganados: Array = GameManager.ITEMS_POR_NIVEL[GameManager.nivel_actual] if GameManager.nivel_actual < GameManager.ITEMS_POR_NIVEL.size() else []
 	var iconos := {
 		GameManager.TipoItem.RADAR: "📡 Radar",
@@ -465,7 +471,6 @@ func _mostrar_resultado_historia() -> void:
 		lbl_items_ganados.text = ""
 	else:
 		lbl_items_ganados.text = "Items ganados: " + ", ".join(nombres)
-	var es_ultimo := GameManager.nivel_actual >= GameManager.CONFIGURACIONES.size() - 1
 	btn_continuar.visible = not es_ultimo
 	btn_continuar.text = "SIGUIENTE NIVEL"
 	pantalla_resultado_historia.visible = true
@@ -503,21 +508,16 @@ func _actualizar_hud_boss() -> void:
 	var porcentaje := float(boss.vida) / float(boss.VIDA_MAXIMA)
 	barra_vida_boss.size.x = 300.0 * porcentaje
 
-func _disparar() -> void:
+func _disparar_con(tipo: GameManager.TipoItem) -> void:
 	if _cooldown_disparo > 0.0:
 		return
-	var tiene_pistola := GameManager.cantidad_item(GameManager.TipoItem.PISTOLA) > 0
-	var tiene_bazuka := GameManager.cantidad_item(GameManager.TipoItem.BAZUKA) > 0
-	if not tiene_pistola and not tiene_bazuka:
+	if boss == null:
+		return
+	if not GameManager.consumir_item(tipo):
 		return
 	_cooldown_disparo = 0.4
-	var es_bazuka :bool = GameManager.inventario[item_seleccionado] == GameManager.TipoItem.BAZUKA
-	var danio := GameManager.DANIO_BAZUKA if es_bazuka else GameManager.DANIO_PISTOLA
-	if es_bazuka:
-		GameManager.consumir_item(GameManager.TipoItem.BAZUKA)
-	else:
-		GameManager.consumir_item(GameManager.TipoItem.PISTOLA)
-	if boss != null and boss.global_position.distance_to(jugador.global_position) < 80.0:
+	var danio := GameManager.DANIO_BAZUKA if tipo == GameManager.TipoItem.BAZUKA else GameManager.DANIO_PISTOLA
+	if boss.global_position.distance_to(jugador.global_position) < 120.0:
 		boss.recibir_danio(danio)
 		_actualizar_hud_boss()
 	for elite in get_tree().get_nodes_in_group("elite_boss"):
