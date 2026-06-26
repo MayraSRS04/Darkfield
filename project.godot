@@ -12,12 +12,17 @@ config_version=5
 
 config/name="Darkfield"
 run/main_scene="uid://clr4qpf4on20t"
-config/features=PackedStringArray("4.7", "Forward Plus")
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="uid://bb6w5k1lqhi8x"
 
 [autoload]
 
 GameManager="*uid://pxq6271d7jj3"
+GestorAudio="*uid://tl1itkf0tmjg"
 
 [display]
 

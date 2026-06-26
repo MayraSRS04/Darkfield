@@ -19,6 +19,7 @@ func _ready() -> void:
 	btn_medio.pressed.connect(_on_dificultad.bind(1))
 	btn_dificil.pressed.connect(_on_dificultad.bind(2))
 	_iniciar_fade()
+	GestorAudio.reproducir_musica("menu")
 
 func _on_partida_rapida() -> void:
 	popup_dificultad.visible = not popup_dificultad.visible
