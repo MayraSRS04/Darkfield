@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://djwm3sk2tijso"]
+
+[ext_resource type="Script" uid="uid://b2wv55wtthmlj" path="res://actors/boss.gd" id="1_xvrk6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_om26l"]
+radius = 8.0
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ycbx8"]
+load_path = "res://.godot/imported/soldier1_gun.png-55fd337b6dbd0a7abc6b9581a50a10d7.ctex"
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_duxay"]
+radius = 8.0
+
+[node name="Boss" type="CharacterBody2D" unique_id=490611600]
+script = ExtResource("1_xvrk6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2042684453]
+shape = SubResource("CircleShape2D_om26l")
+disabled = true
+
+[node name="LineaDeVista" type="RayCast2D" parent="." unique_id=1256911471]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1356771655]
+modulate = Color(0.9819147, 0.8368446, 7.70092e-07, 1)
+scale = Vector2(0.38, 0.38)
+texture = SubResource("CompressedTexture2D_ycbx8")
+
+[node name="Linterna" type="PointLight2D" parent="." unique_id=457905385]
+color = Color(0.6387191, 0.4106225, 0.00848728, 1)
+energy = 2.0
+
+[node name="BarraVida" type="Node2D" parent="." unique_id=1021737916]
+
+[node name="FondoBarra" type="ColorRect" parent="BarraVida" unique_id=808142663]
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = -9.0
+color = Color(0.5167208, 0.48084688, 0.5712436, 1)
+
+[node name="ColorRect" type="ColorRect" parent="BarraVida" unique_id=733037150]
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = -9.0
+color = Color(0.71828204, 0, 0.14009169, 1)
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1727994138]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1703948317]
+shape = SubResource("CircleShape2D_duxay")

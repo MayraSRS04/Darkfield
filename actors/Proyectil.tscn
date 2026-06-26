@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://gg3708n1r4qo"]
+
+[ext_resource type="Script" uid="uid://h66p5ur47xlx" path="res://actors/proyectil.gd" id="1_ucfi5"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_om26l"]
+radius = 5.0
+
+[node name="Proyectil" type="Node2D" unique_id=194798928]
+script = ExtResource("1_ucfi5")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=271834491]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=694767367]
+shape = SubResource("CircleShape2D_om26l")
+
+[node name="ColorRect" type="ColorRect" parent="Area2D" unique_id=1056510280]
+offset_left = -3.0
+offset_top = -3.0
+offset_right = 3.0
+offset_bottom = 3.0
+color = Color(0.68377984, 0, 0.08074074, 1)
