@@ -75,31 +75,36 @@ func _calcular_numeros() -> void:
 		for col in range(columnas):
 			if celdas[fila][col]["mina"]:
 				continue
+			if bloqueadas.has(Vector2i(fila, col)):
+				continue
 			var cuenta := 0
 			for v in _vecinas(fila, col):
+				if bloqueadas.has(v):
+					continue
 				if celdas[v.x][v.y]["mina"]:
 					cuenta += 1
 			celdas[fila][col]["numero"] = cuenta
 
 
 func revelar(fila: int, col: int) -> void:
-	if not _dentro(fila, col):
-		return
-	if bloqueadas.has(Vector2i(fila, col)):
-		return
-	var celda = celdas[fila][col]
-	if celda["revelada"] or celda["abanderada"]:
-		return
-
-	celda["revelada"] = true
-
-	if celda["mina"]:
-		return
-
-	if celda["numero"] == 0:
-		for v in _vecinas(fila, col):
-			revelar(v.x, v.y)
-
+	var cola: Array[Vector2i] = [Vector2i(fila, col)]
+	while not cola.is_empty():
+		var actual: Vector2i = cola.pop_front()
+		if not _dentro(actual.x, actual.y):
+			continue
+		if bloqueadas.has(actual):
+			continue
+		var celda = celdas[actual.x][actual.y]
+		if celda["revelada"] or celda["abanderada"]:
+			continue
+		celda["revelada"] = true
+		if celda["mina"]:
+			continue
+		if celda["numero"] == 0:
+			for dir in [Vector2i(0,1), Vector2i(0,-1), Vector2i(1,0), Vector2i(-1,0)]:
+				var vecino : Vector2i = actual + dir
+				if not bloqueadas.has(vecino):
+					cola.append(vecino)
 
 func abanderar(fila: int, col: int) -> void:
 	if not _dentro(fila, col):
