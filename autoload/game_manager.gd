@@ -23,9 +23,9 @@ const DANIO_PISTOLA := 10
 const DANIO_BAZUKA := 50
 
 const CONFIGURACIONES := [
-	{"filas": 31, "columnas": 31, "minas": 100, "cazadores": 9},
-	{"filas": 41, "columnas": 41, "minas": 250, "cazadores": 15},
-	{"filas": 61, "columnas": 61, "minas": 390, "cazadores": 20},
+	{"filas": 15, "columnas": 15, "minas": 10, "cazadores": 1},
+	{"filas": 21, "columnas": 21, "minas": 25, "cazadores": 3},
+	{"filas": 31, "columnas": 31, "minas": 39, "cazadores": 5},
 ]
 
 const ITEMS_POR_NIVEL := [
