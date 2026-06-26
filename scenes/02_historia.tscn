@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://c7y8x8mvem67t"]
 
+[ext_resource type="Script" uid="uid://bmwqjifm5acvq" path="res://scenes/historia.gd" id="1_hist"]
 [ext_resource type="Shader" uid="uid://bxi2q3dakjlmk" path="res://scenes/fondo_menu.gdshader" id="2_fondo"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_fondo"]
@@ -15,6 +16,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_hist")
 
 [node name="Fondo" type="ColorRect" parent="." unique_id=1190988423]
 material = SubResource("ShaderMaterial_fondo")
