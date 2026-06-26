@@ -18,6 +18,15 @@ extends Node2D
 @onready var btn_menu_principal: Button = $Pausa/Contenedor/BtnMenuPrincipal
 @onready var oscuridad: CanvasModulate = $Oscuridad
 @onready var fade_fondo: ColorRect = $FadeEntrada/Fondo
+@onready var items_layer: Node2D = $ItemsLayer
+@onready var hud_inventario: CanvasLayer = $HUDInventario
+@onready var lbl_item_activo: Label = $HUDInventario/Contenedor/LblItemActivo
+@onready var lbl_inventario: Label = $HUDInventario/Contenedor/LblInventario
+@onready var pantalla_resultado_historia: CanvasLayer = $PantallaResultadoHistoria
+@onready var lbl_titulo_h: Label = $PantallaResultadoHistoria/Contenedor/LblTituloH
+@onready var lbl_items_ganados: Label = $PantallaResultadoHistoria/Contenedor/LblItemsGanados
+@onready var btn_continuar: Button = $PantallaResultadoHistoria/Contenedor/BtnContinuar
+@onready var btn_menu_historia: Button = $PantallaResultadoHistoria/Contenedor/BtnMenuHistoria
 
 const FUENTE_SUELO := 0
 const FUENTE_PARED := 1
@@ -27,7 +36,10 @@ var mapa: Mapa
 var tablero: Tablero
 var muerto := false
 var causa_muerte := ""
-
+var item_seleccionado: int = 0
+var _timer_congelado := 0.0
+var _timer_radar := 0.0
+var _celdas_radar: Array = []
 
 func _ready() -> void:
 	var cfg: Dictionary = GameManager.CONFIGURACIONES[GameManager.nivel_actual]
@@ -86,7 +98,15 @@ func _ready() -> void:
 	GameManager.minas_restantes_cambiado.connect(_on_minas_cambiado)
 	GameManager.jugador_detectado.connect(_on_alerta_cambiada)
 	_iniciar_fade()
-	
+	jugador.solicito_usar_item.connect(_on_usar_item)
+	jugador.solicito_ciclar_item.connect(_on_ciclar_item)
+	btn_continuar.pressed.connect(_on_continuar_historia)
+	btn_menu_historia.pressed.connect(_on_menu_historia)
+	GameManager.inventario_cambiado.connect(_on_inventario_cambiado)
+	hud_inventario.visible = GameManager.modo_historia
+	if GameManager.modo_historia:
+		_spawnear_items()
+		_on_inventario_cambiado()
 
 func _pintar_mapa() -> void:
 	for fila in range(mapa.filas):
@@ -204,7 +224,10 @@ func _ganar() -> void:
 	muerto = true
 	_congelar_actores()
 	GameManager.nivel_ganado()
-	_mostrar_resultado(true, "")
+	if GameManager.modo_historia:
+		_mostrar_resultado_historia()
+	else:
+		_mostrar_resultado(true, "")
 
 func _congelar_actores() -> void:
 	jugador.set_physics_process(false)
@@ -222,9 +245,20 @@ func _on_solicito_abanderar() -> void:
 	if tablero.es_victoria():
 		_ganar()
 		
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if muerto:
 		return
+	if _timer_congelado > 0.0:
+		_timer_congelado -= delta
+		if _timer_congelado <= 0.0:
+			_descongelar_cazadores()
+	if _timer_radar > 0.0:
+		_timer_radar -= delta
+		if _timer_radar <= 0.0:
+			_limpiar_radar()
+	if GameManager.modo_historia:
+		for item in items_layer.get_children():
+			item.intentar_recoger(jugador.global_position)
 	for cazador in get_tree().get_nodes_in_group("cazadores"):
 		if cazador.estado == cazador.Estado.PERSIGUIENDO:
 			if jugador.global_position.distance_to(cazador.global_position) < 12.0:
@@ -303,3 +337,135 @@ func _fade_salida(destino: String) -> void:
 	var tween := create_tween()
 	tween.tween_property(fade_fondo, "modulate:a", 1.0, 0.5)
 	tween.tween_callback(func(): get_tree().change_scene_to_file(destino))
+
+func _spawnear_items() -> void:
+	var escena_item := load("res://scripts/logica/item_mapa.gd")
+	var caminables := mapa.celdas_caminables()
+	caminables.shuffle()
+	var cantidad := mini(3, caminables.size())
+	var tipos_nivel: Array = GameManager.ITEMS_POR_NIVEL[GameManager.nivel_actual] if GameManager.nivel_actual < GameManager.ITEMS_POR_NIVEL.size() else []
+	for i in mini(tipos_nivel.size(), cantidad):
+		var celda: Vector2i = caminables[i + 2]
+		var item := Node2D.new()
+		item.set_script(escena_item)
+		item.tipo = tipos_nivel[i]
+		items_layer.add_child(item)
+		item.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
+		item.recogido.connect(_on_item_recogido)
+
+func _on_item_recogido(tipo: GameManager.TipoItem) -> void:
+	GameManager.agregar_item(tipo)
+
+func _on_inventario_cambiado() -> void:
+	if GameManager.inventario.is_empty():
+		lbl_item_activo.text = ""
+		lbl_inventario.text = "Sin items"
+		return
+	if item_seleccionado >= GameManager.inventario.size():
+		item_seleccionado = 0
+	var tipo_actual: GameManager.TipoItem = GameManager.inventario[item_seleccionado]
+	var iconos := {
+		GameManager.TipoItem.RADAR: "📡 Radar",
+		GameManager.TipoItem.BOOST: "⚡ Boost",
+		GameManager.TipoItem.CONGELADO: "❄️ Congelar",
+		GameManager.TipoItem.ESCUDO: "🛡️ Escudo",
+		GameManager.TipoItem.PISTOLA: "🔫 Pistola",
+		GameManager.TipoItem.BAZUKA: "💥 Bazuka",
+	}
+	lbl_item_activo.text = "► " + iconos.get(tipo_actual, "?")
+	var resto := GameManager.inventario.duplicate()
+	resto.remove_at(item_seleccionado)
+	var nombres: Array = []
+	for t in resto:
+		nombres.append(iconos.get(t, "?"))
+	lbl_inventario.text = "  ".join(nombres)
+
+func _on_ciclar_item() -> void:
+	if muerto or GameManager.inventario.is_empty():
+		return
+	item_seleccionado = (item_seleccionado + 1) % GameManager.inventario.size()
+	_on_inventario_cambiado()
+
+func _on_usar_item() -> void:
+	if muerto or GameManager.inventario.is_empty():
+		return
+	if item_seleccionado >= GameManager.inventario.size():
+		item_seleccionado = 0
+	var tipo: GameManager.TipoItem = GameManager.inventario[item_seleccionado]
+	match tipo:
+		GameManager.TipoItem.RADAR:
+			if GameManager.consumir_item(tipo):
+				_activar_radar()
+		GameManager.TipoItem.BOOST:
+			if GameManager.consumir_item(tipo):
+				jugador.activar_boost()
+		GameManager.TipoItem.CONGELADO:
+			if GameManager.consumir_item(tipo):
+				_activar_congelado()
+		GameManager.TipoItem.ESCUDO:
+			pass
+		GameManager.TipoItem.PISTOLA:
+			pass
+		GameManager.TipoItem.BAZUKA:
+			pass
+
+func _activar_radar() -> void:
+	var celda_j := _celda_del_jugador()
+	var radio: int = GameManager.RADIO_RADAR
+	_limpiar_radar()
+	for df in range(-radio, radio + 1):
+		for dc in range(-radio, radio + 1):
+			var f := celda_j.x + df
+			var c := celda_j.y + dc
+			if f < 0 or f >= tablero.filas or c < 0 or c >= tablero.columnas:
+				continue
+			if mapa.es_pared(f, c):
+				continue
+			if tablero.celdas[f][c]["mina"] and not tablero.celdas[f][c]["revelada"]:
+				_celdas_radar.append(Vector2i(f, c))
+				_crear_etiqueta(f, c, "💣", Color(1.0, 0.5, 0.1, 0.85))
+	_timer_radar = GameManager.DURACION_RADAR
+
+func _limpiar_radar() -> void:
+	_celdas_radar.clear()
+	_dibujar_overlay()
+
+func _activar_congelado() -> void:
+	_timer_congelado = GameManager.DURACION_CONGELADO_ITEM
+	for c in get_tree().get_nodes_in_group("cazadores"):
+		c.set_physics_process(false)
+
+func _descongelar_cazadores() -> void:
+	for c in get_tree().get_nodes_in_group("cazadores"):
+		c.set_physics_process(true)
+
+func _mostrar_resultado_historia() -> void:
+	var items_ganados: Array = GameManager.ITEMS_POR_NIVEL[GameManager.nivel_actual] if GameManager.nivel_actual < GameManager.ITEMS_POR_NIVEL.size() else []
+	var iconos := {
+		GameManager.TipoItem.RADAR: "📡 Radar",
+		GameManager.TipoItem.BOOST: "⚡ Boost",
+		GameManager.TipoItem.CONGELADO: "❄️ Congelar",
+		GameManager.TipoItem.ESCUDO: "🛡️ Escudo",
+		GameManager.TipoItem.PISTOLA: "🔫 Pistola",
+		GameManager.TipoItem.BAZUKA: "💥 Bazuka",
+	}
+	var nombres: Array = []
+	for t in items_ganados:
+		nombres.append(iconos.get(t, "?"))
+	if nombres.is_empty():
+		lbl_items_ganados.text = ""
+	else:
+		lbl_items_ganados.text = "Items ganados: " + ", ".join(nombres)
+	var es_ultimo := GameManager.nivel_actual >= GameManager.CONFIGURACIONES.size() - 1
+	btn_continuar.visible = not es_ultimo
+	btn_continuar.text = "SIGUIENTE NIVEL"
+	pantalla_resultado_historia.visible = true
+
+func _on_continuar_historia() -> void:
+	var siguiente := GameManager.nivel_actual + 1
+	GameManager.iniciar_nivel_historia(siguiente)
+	_fade_salida("res://scenes/01_juego.tscn")
+
+func _on_menu_historia() -> void:
+	GameManager.modo_historia = false
+	_fade_salida("res://scenes/02_historia.tscn")

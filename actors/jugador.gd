@@ -7,12 +7,26 @@ var destino: Vector2
 var moviendose := false
 var ultima_direccion := Vector2.RIGHT
 
+var boost_activo := false
+var _timer_boost := 0.0
+
+func activar_boost() -> void:
+	boost_activo = true
+	_timer_boost = GameManager.DURACION_BOOST
+
+func _process(delta: float) -> void:
+	if boost_activo:
+		_timer_boost -= delta
+		if _timer_boost <= 0.0:
+			boost_activo = false
+
 func _ready() -> void:
 	destino = global_position
 
 func _physics_process(delta: float) -> void:
 	if moviendose:
-		global_position = global_position.move_toward(destino, GameManager.VELOCIDAD_JUGADOR * delta)
+		var vel := GameManager.VELOCIDAD_BOOST if boost_activo else GameManager.VELOCIDAD_JUGADOR
+		global_position = global_position.move_toward(destino, vel * delta)
 		if global_position.distance_to(destino) < 1.0:
 			global_position = destino
 			moviendose = false
@@ -40,9 +54,16 @@ func _physics_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
 
+signal solicito_usar_item
+signal solicito_ciclar_item
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_SPACE:
 			solicito_revelar.emit()
 		elif event.keycode == KEY_F:
 			solicito_abanderar.emit()
+		elif event.keycode == KEY_E:
+			solicito_usar_item.emit()
+		elif event.keycode == KEY_TAB:
+			solicito_ciclar_item.emit()
