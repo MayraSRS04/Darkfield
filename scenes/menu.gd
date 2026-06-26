@@ -28,7 +28,7 @@ func _on_dificultad(nivel: int) -> void:
 	_fade_salida("res://scenes/01_juego.tscn")
 
 func _on_modo_historia() -> void:
-	pass
+	_fade_salida("res://scenes/02_historia.tscn")
 
 func _on_opciones() -> void:
 	pass

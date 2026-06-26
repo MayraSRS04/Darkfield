@@ -1,0 +1,103 @@
+[gd_scene format=3 uid="uid://c7y8x8mvem67t"]
+
+[ext_resource type="Shader" uid="uid://bxi2q3dakjlmk" path="res://scenes/fondo_menu.gdshader" id="2_fondo"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fondo"]
+shader = ExtResource("2_fondo")
+shader_parameter/velocidad = 0.05
+shader_parameter/color_linea = Color(0.12, 0.28, 0.55, 1)
+shader_parameter/color_fondo = Color(0.03, 0.06, 0.12, 1)
+
+[node name="Historia" type="Control" unique_id=1513143769]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Fondo" type="ColorRect" parent="." unique_id=1190988423]
+material = SubResource("ShaderMaterial_fondo")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.06, 0.12, 1)
+
+[node name="Contenedor" type="VBoxContainer" parent="." unique_id=312563333]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -200.0
+offset_right = 220.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Titulo" type="Label" parent="Contenedor" unique_id=1392796321]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.78, 0.93, 1)
+theme_override_font_sizes/font_size = 40
+text = "MODO HISTORIA"
+horizontal_alignment = 1
+
+[node name="Subtitulo" type="Label" parent="Contenedor" unique_id=521142489]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.58, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+text = "Un soldado. Un campo minado. Sin salida."
+horizontal_alignment = 1
+
+[node name="Separador" type="HSeparator" parent="Contenedor" unique_id=844426403]
+layout_mode = 2
+
+[node name="Niveles" type="VBoxContainer" parent="Contenedor" unique_id=787913547]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnNivel0" type="Button" parent="Contenedor/Niveles" unique_id=395147394]
+layout_mode = 2
+text = "NIVEL 1 — La Emboscada"
+
+[node name="BtnNivel1" type="Button" parent="Contenedor/Niveles" unique_id=1578000552]
+layout_mode = 2
+text = "NIVEL 2 — Zona de Guerra"
+
+[node name="BtnNivel2" type="Button" parent="Contenedor/Niveles" unique_id=887560061]
+layout_mode = 2
+text = "NIVEL 3 — El Último Bastión"
+
+[node name="Separador2" type="HSeparator" parent="Contenedor" unique_id=1147835131]
+layout_mode = 2
+
+[node name="FilaInferior" type="HBoxContainer" parent="Contenedor" unique_id=1087008262]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnNuevaPartida" type="Button" parent="Contenedor/FilaInferior" unique_id=235585184]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "NUEVA PARTIDA"
+
+[node name="BtnVolver" type="Button" parent="Contenedor/FilaInferior" unique_id=1962899248]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "VOLVER"
+
+[node name="FadeEntrada" type="CanvasLayer" parent="." unique_id=1402530989]
+layer = 20
+
+[node name="Fondo" type="ColorRect" parent="FadeEntrada" unique_id=663361146]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
