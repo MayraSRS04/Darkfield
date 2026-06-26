@@ -2,12 +2,14 @@
 
 [ext_resource type="Script" uid="uid://bmwqjifm5acvq" path="res://scenes/historia.gd" id="1_hist"]
 [ext_resource type="Shader" uid="uid://bxi2q3dakjlmk" path="res://scenes/fondo_menu.gdshader" id="2_fondo"]
+[ext_resource type="FontFile" uid="uid://bu7l3sbhuueox" path="res://recursos/fuentes/Call of Ops Duty.otf" id="3_fuente"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_fondo"]
 shader = ExtResource("2_fondo")
-shader_parameter/velocidad = 0.05
-shader_parameter/color_linea = Color(0.12, 0.28, 0.55, 1)
-shader_parameter/color_fondo = Color(0.03, 0.06, 0.12, 1)
+shader_parameter/velocidad = 0.03
+shader_parameter/color_arena = Color(0.18, 0.12, 0.05, 1)
+shader_parameter/color_polvo = Color(0.38, 0.26, 0.10, 1)
+shader_parameter/color_calor = Color(0.45, 0.28, 0.08, 0.4)
 
 [node name="Historia" type="Control" unique_id=1513143769]
 layout_mode = 3
@@ -26,7 +28,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.03, 0.06, 0.12, 1)
+color = Color(0.18, 0.12, 0.05, 1)
 
 [node name="Contenedor" type="VBoxContainer" parent="." unique_id=312563333]
 layout_mode = 1
@@ -45,15 +47,19 @@ theme_override_constants/separation = 20
 
 [node name="Titulo" type="Label" parent="Contenedor" unique_id=1392796321]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.78, 0.93, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_fonts/font = ExtResource("3_fuente")
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_font_sizes/font_size = 46
+theme_override_constants/outline_size = 2
+theme_override_colors/font_outline_color = Color(0.0, 0.0, 0.0, 0.8)
 text = "MODO HISTORIA"
 horizontal_alignment = 1
 
 [node name="Subtitulo" type="Label" parent="Contenedor" unique_id=521142489]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.58, 0.72, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("3_fuente")
+theme_override_colors/font_color = Color(0.55, 0.44, 0.22, 1)
+theme_override_font_sizes/font_size = 14
 text = "Un soldado. Un campo minado. Sin salida."
 horizontal_alignment = 1
 
@@ -66,15 +72,30 @@ theme_override_constants/separation = 12
 
 [node name="BtnNivel0" type="Button" parent="Contenedor/Niveles" unique_id=395147394]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_fuente")
+custom_minimum_size = Vector2(360, 44)
 text = "NIVEL 1 — La Emboscada"
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.88, 0.50, 1)
+theme_override_font_sizes/font_size = 17
 
 [node name="BtnNivel1" type="Button" parent="Contenedor/Niveles" unique_id=1578000552]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_fuente")
+custom_minimum_size = Vector2(360, 44)
 text = "NIVEL 2 — Zona de Guerra"
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.88, 0.50, 1)
+theme_override_font_sizes/font_size = 17
 
 [node name="BtnNivel2" type="Button" parent="Contenedor/Niveles" unique_id=887560061]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_fuente")
+custom_minimum_size = Vector2(360, 44)
 text = "NIVEL 3 — El Último Bastión"
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.88, 0.50, 1)
+theme_override_font_sizes/font_size = 17
 
 [node name="Separador2" type="HSeparator" parent="Contenedor" unique_id=1147835131]
 layout_mode = 2
@@ -85,13 +106,23 @@ theme_override_constants/separation = 12
 
 [node name="BtnNuevaPartida" type="Button" parent="Contenedor/FilaInferior" unique_id=235585184]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_fuente")
 size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 38)
 text = "NUEVA PARTIDA"
+theme_override_colors/font_color = Color(0.65, 0.52, 0.28, 1)
+theme_override_colors/font_hover_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_font_sizes/font_size = 15
 
 [node name="BtnVolver" type="Button" parent="Contenedor/FilaInferior" unique_id=1962899248]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_fuente")
 size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 38)
 text = "VOLVER"
+theme_override_colors/font_color = Color(0.65, 0.52, 0.28, 1)
+theme_override_colors/font_hover_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_font_sizes/font_size = 15
 
 [node name="FadeEntrada" type="CanvasLayer" parent="." unique_id=1402530989]
 layer = 20

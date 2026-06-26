@@ -4,6 +4,7 @@
 [ext_resource type="TileSet" uid="uid://i7ijb6r1478w" path="res://recursos/tilesets/mundo.tres" id="1_dlla0"]
 [ext_resource type="PackedScene" uid="uid://45610vclphqv" path="res://actors/jugador.tscn" id="3_oiwu5"]
 [ext_resource type="Script" uid="uid://sdy54s585t4r" path="res://scenes/pausa.gd" id="4_8bcx7"]
+[ext_resource type="FontFile" uid="uid://bu7l3sbhuueox" path="res://recursos/fuentes/Call of Ops Duty.otf" id="5_fuente"]
 
 [node name="Juego" type="Node2D" unique_id=1902666549]
 script = ExtResource("1_2uc6o")
@@ -55,7 +56,7 @@ horizontal_alignment = 1
 
 [node name="LblDetalle" type="Label" parent="PantallaResultado/Contenedor" unique_id=361911077]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_colors/font_color = Color(0.65, 0.52, 0.28, 1)
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
@@ -83,19 +84,22 @@ theme_override_constants/separation = 16
 
 [node name="LblMinas" type="Label" parent="HUD/BarraSuperior" unique_id=1764771347]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.78, 0.93, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_font_sizes/font_size = 22
 text = "🚩 0"
 
 [node name="LblAlerta" type="Label" parent="HUD/BarraSuperior" unique_id=62854998]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.9, 0.5, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.45, 0.75, 0.28, 1)
+theme_override_font_sizes/font_size = 22
 text = "● SEGURO"
 
 [node name="BtnPausa" type="Button" parent="HUD/BarraSuperior" unique_id=1519651035]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.65, 0.52, 0.28, 1)
+theme_override_font_sizes/font_size = 18
 text = "II"
 
 [node name="Pausa" type="CanvasLayer" parent="." unique_id=448762830]
@@ -126,17 +130,28 @@ theme_override_constants/separation = 16
 
 [node name="LblMenu" type="Label" parent="Pausa/Contenedor" unique_id=1159835022]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.78, 0.93, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 22
 text = "PAUSA"
 horizontal_alignment = 1
 
 [node name="BtnReanudar" type="Button" parent="Pausa/Contenedor" unique_id=369013975]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_colors/font_hover_color = Color(1, 0.88, 0.5, 1)
+theme_override_font_sizes/font_size = 16
 text = "VOLVER AL JUEGO"
 
 [node name="BtnMenuPrincipal" type="Button" parent="Pausa/Contenedor" unique_id=1538357895]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.65, 0.52, 0.28, 1)
+theme_override_colors/font_hover_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_font_sizes/font_size = 1
 text = "SALIR DE LA PARTIDA"
 
 [node name="Oscuridad" type="CanvasModulate" parent="." unique_id=1244061730]
@@ -170,13 +185,15 @@ theme_override_constants/separation = 8
 
 [node name="LblItemActivo" type="Label" parent="HUDInventario/Contenedor" unique_id=1111111104]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.78, 0.93, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_font_sizes/font_size = 18
 
 [node name="LblInventario" type="Label" parent="HUDInventario/Contenedor" unique_id=1111111105]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.6, 0.7, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.55, 0.44, 0.22, 1)
+theme_override_font_sizes/font_size = 13
 
 [node name="PantallaResultadoHistoria" type="CanvasLayer" parent="." unique_id=1111111106]
 layer = 11
@@ -206,14 +223,15 @@ theme_override_constants/separation = 16
 
 [node name="LblTituloH" type="Label" parent="PantallaResultadoHistoria/Contenedor" unique_id=1111111109]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.9, 0.5, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.45, 0.75, 0.28, 1)
+theme_override_font_sizes/font_size = 34
 text = "NIVEL COMPLETADO"
 horizontal_alignment = 1
 
 [node name="LblItemsGanados" type="Label" parent="PantallaResultadoHistoria/Contenedor" unique_id=1111111110]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.85, 0.6, 1)
+theme_override_colors/font_color = Color(0.7, 0.58, 0.3, 1)
 theme_override_font_sizes/font_size = 15
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -239,8 +257,11 @@ theme_override_constants/separation = 4
 
 [node name="LblBoss" type="Label" parent="HUDVidaBoss/Contenedor" unique_id=-2072745093]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("5_fuente")
+theme_override_colors/font_color = Color(0.95, 0.25, 0.15, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/font_size = 15
 text = "GENERAL KARIMI"
 horizontal_alignment = 1
 
