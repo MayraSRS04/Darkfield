@@ -5,11 +5,10 @@ static func generar(filas: int, columnas: int, semilla: int = -1) -> Array:
 	if semilla >= 0:
 		seed(semilla)
 	var grid := _inicializar(filas, columnas)
-	grid = _suavizar(grid, filas, columnas, 5)
+	grid = _garantizar_zona_segura(grid, Vector2i(1, 1), 3)
+	grid = _suavizar(grid, filas, columnas, 4)
 	grid = _garantizar_borde(grid, filas, columnas)
-	var inicio := Vector2i(1, 1)
-	grid = _conectar(grid, filas, columnas, inicio)
-	grid = _garantizar_zona_segura(grid, inicio, 2)
+	grid = _conectar(grid, filas, columnas, Vector2i(1, 1))
 	return _a_layout(grid, filas, columnas)
 
 static func _inicializar(filas: int, columnas: int) -> Array:
@@ -20,7 +19,7 @@ static func _inicializar(filas: int, columnas: int) -> Array:
 			if f == 0 or f == filas - 1 or c == 0 or c == columnas - 1:
 				fila.append(1)
 			else:
-				fila.append(1 if randf() < 0.44 else 0)
+				fila.append(1 if randf() < 0.42 else 0)
 		grid.append(fila)
 	return grid
 
@@ -69,12 +68,12 @@ static func _garantizar_borde(grid: Array, filas: int, columnas: int) -> Array:
 
 static func _flood_fill(grid: Array, filas: int, columnas: int, inicio: Vector2i) -> Dictionary:
 	var visitado := {}
-	var cola := [inicio]
+	var cola: Array[Vector2i] = [inicio]
 	visitado[inicio] = true
 	while not cola.is_empty():
 		var actual: Vector2i = cola.pop_front()
 		for dir in [Vector2i(1,0), Vector2i(-1,0), Vector2i(0,1), Vector2i(0,-1)]:
-			var vecino := actual + dir
+			var vecino: Vector2i = actual + dir
 			if vecino.x < 0 or vecino.x >= filas or vecino.y < 0 or vecino.y >= columnas:
 				continue
 			if visitado.has(vecino):

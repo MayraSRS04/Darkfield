@@ -45,6 +45,7 @@ var _timer_radar := 0.0
 var _celdas_radar: Array = []
 var boss: Node2D = null
 var fase_boss_activa := false
+var boss_derrotado := false
 var escudo_activo := false
 var balas_totales := 0
 var _cooldown_disparo := 0.0
@@ -57,13 +58,15 @@ func _ready() -> void:
 
 	tablero = Tablero.new(mapa.filas, mapa.columnas)
 	tablero.marcar_bloqueadas(mapa.celdas_pared())
-	tablero.colocar_minas(cfg["minas"], Vector2i(1, 1), mapa.celdas_caminables())
+	var spawn := _primera_celda_caminable()
+	tablero.colocar_minas(cfg["minas"], spawn, mapa.celdas_caminables())
 	
 	_pintar_mapa()
-	#print("hijos del jugador: ", jugador.get_children())
 	jugador.get_node("Camera2D").configurar_limites(suelo)
 	
-	jugador.position = suelo.map_to_local(Vector2i(1, 1))
+	var celda_spawn := _primera_celda_caminable()
+	jugador.position = suelo.map_to_local(Vector2i(celda_spawn.y, celda_spawn.x))
+	tablero.revelar(celda_spawn.x, celda_spawn.y)
 	jugador.solicito_revelar.connect(_on_solicito_revelar)
 	jugador.solicito_abanderar.connect(_on_solicito_abanderar)
 	
@@ -89,10 +92,6 @@ func _ready() -> void:
 		cazador.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
 		cazador.inicio = cazador.global_position
 		cazador.destino = cazador.global_position
-	
-	tablero.revelar(1, 1)
-	#_forzar_revelar_fila(4)
-	#tablero.abanderar(7, 4)
 
 	_dibujar_overlay()
 	GameManager.actualizar_minas_restantes(tablero.contar_minas())
@@ -231,7 +230,7 @@ func _morir() -> void:
 	_mostrar_resultado(false, causa_muerte)
 
 func _ganar() -> void:
-	if GameManager.modo_historia and GameManager.nivel_actual == 2 and not fase_boss_activa:
+	if GameManager.modo_historia and GameManager.nivel_actual == 2 and not fase_boss_activa and not boss_derrotado:
 		_iniciar_fase_boss()
 		return
 	muerto = true
@@ -512,7 +511,7 @@ func _disparar() -> void:
 	if not tiene_pistola and not tiene_bazuka:
 		return
 	_cooldown_disparo = 0.4
-	var es_bazuka := GameManager.inventario[item_seleccionado] == GameManager.TipoItem.BAZUKA
+	var es_bazuka :bool = GameManager.inventario[item_seleccionado] == GameManager.TipoItem.BAZUKA
 	var danio := GameManager.DANIO_BAZUKA if es_bazuka else GameManager.DANIO_PISTOLA
 	if es_bazuka:
 		GameManager.consumir_item(GameManager.TipoItem.BAZUKA)
@@ -528,6 +527,7 @@ func _disparar() -> void:
 func _on_boss_muerto() -> void:
 	boss = null
 	fase_boss_activa = false
+	boss_derrotado = true
 	hud_vida_boss.visible = false
 	_ganar()
 
@@ -546,3 +546,10 @@ func _on_impacto_granada(pos: Vector2) -> void:
 		return
 	if jugador.global_position.distance_to(pos) < 24.0:
 		_on_danio_jugador("alcanzado por una granada")
+
+func _primera_celda_caminable() -> Vector2i:
+	for f in range(1, mapa.filas - 1):
+		for c in range(1, mapa.columnas - 1):
+			if mapa.es_caminable(f, c):
+				return Vector2i(f, c)
+	return Vector2i(1, 1)
