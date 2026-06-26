@@ -27,6 +27,9 @@ extends Node2D
 @onready var lbl_items_ganados: Label = $PantallaResultadoHistoria/Contenedor/LblItemsGanados
 @onready var btn_continuar: Button = $PantallaResultadoHistoria/Contenedor/BtnContinuar
 @onready var btn_menu_historia: Button = $PantallaResultadoHistoria/Contenedor/BtnMenuHistoria
+@onready var hud_vida_boss: CanvasLayer = $HUDVidaBoss
+@onready var barra_vida_boss: ColorRect = $HUDVidaBoss/Contenedor/BarraVida
+@onready var lbl_boss: Label = $HUDVidaBoss/Contenedor/LblBoss
 
 const FUENTE_SUELO := 0
 const FUENTE_PARED := 1
@@ -40,6 +43,12 @@ var item_seleccionado: int = 0
 var _timer_congelado := 0.0
 var _timer_radar := 0.0
 var _celdas_radar: Array = []
+var boss: Node2D = null
+var fase_boss_activa := false
+var boss_derrotado := false
+var escudo_activo := false
+var balas_totales := 0
+var _cooldown_disparo := 0.0
 
 func _ready() -> void:
 	var cfg: Dictionary = GameManager.CONFIGURACIONES[GameManager.nivel_actual]
@@ -49,13 +58,15 @@ func _ready() -> void:
 
 	tablero = Tablero.new(mapa.filas, mapa.columnas)
 	tablero.marcar_bloqueadas(mapa.celdas_pared())
-	tablero.colocar_minas(cfg["minas"], Vector2i(1, 1), mapa.celdas_caminables())
+	var spawn := _primera_celda_caminable()
+	tablero.colocar_minas(cfg["minas"], spawn, mapa.celdas_caminables())
 	
 	_pintar_mapa()
-	#print("hijos del jugador: ", jugador.get_children())
 	jugador.get_node("Camera2D").configurar_limites(suelo)
 	
-	jugador.position = suelo.map_to_local(Vector2i(1, 1))
+	var celda_spawn := _primera_celda_caminable()
+	jugador.position = suelo.map_to_local(Vector2i(celda_spawn.y, celda_spawn.x))
+	tablero.revelar(celda_spawn.x, celda_spawn.y)
 	jugador.solicito_revelar.connect(_on_solicito_revelar)
 	jugador.solicito_abanderar.connect(_on_solicito_abanderar)
 	
@@ -81,10 +92,6 @@ func _ready() -> void:
 		cazador.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
 		cazador.inicio = cazador.global_position
 		cazador.destino = cazador.global_position
-	
-	tablero.revelar(1, 1)
-	#_forzar_revelar_fila(4)
-	#tablero.abanderar(7, 4)
 
 	_dibujar_overlay()
 	GameManager.actualizar_minas_restantes(tablero.contar_minas())
@@ -107,6 +114,8 @@ func _ready() -> void:
 	if GameManager.modo_historia:
 		_spawnear_items()
 		_on_inventario_cambiado()
+		hud_vida_boss.visible = false
+		balas_totales = GameManager.cantidad_item(GameManager.TipoItem.PISTOLA) * GameManager.BALAS_POR_PISTOLA
 
 func _pintar_mapa() -> void:
 	for fila in range(mapa.filas):
@@ -221,6 +230,9 @@ func _morir() -> void:
 	_mostrar_resultado(false, causa_muerte)
 
 func _ganar() -> void:
+	if GameManager.modo_historia and GameManager.nivel_actual == 2 and not fase_boss_activa and not boss_derrotado:
+		_iniciar_fase_boss()
+		return
 	muerto = true
 	_congelar_actores()
 	GameManager.nivel_ganado()
@@ -259,6 +271,10 @@ func _process(delta: float) -> void:
 	if GameManager.modo_historia:
 		for item in items_layer.get_children():
 			item.intentar_recoger(jugador.global_position)
+		if _cooldown_disparo > 0.0:
+			_cooldown_disparo -= delta
+		if fase_boss_activa and Input.is_action_pressed("ui_accept"):
+			_disparar()
 	for cazador in get_tree().get_nodes_in_group("cazadores"):
 		if cazador.estado == cazador.Estado.PERSIGUIENDO:
 			if jugador.global_position.distance_to(cazador.global_position) < 12.0:
@@ -266,18 +282,7 @@ func _process(delta: float) -> void:
 				_morir()
 
 func _generar_layout(filas: int, columnas: int) -> Array:
-	var layout: Array = []
-	for fila in range(filas):
-		var linea := ""
-		for col in range(columnas):
-			if fila == 0 or fila == filas - 1 or col == 0 or col == columnas - 1:
-				linea += "#"
-			elif fila % 2 == 0 and col % 2 == 0:
-				linea += "#"
-			else:
-				linea += "."
-		layout.append(linea)
-	return layout
+	return GeneradorDungeon.generar(filas, columnas)
 
 func _mostrar_resultado(victoria: bool, motivo: String) -> void:
 	pantalla_resultado.visible = true
@@ -403,11 +408,15 @@ func _on_usar_item() -> void:
 			if GameManager.consumir_item(tipo):
 				_activar_congelado()
 		GameManager.TipoItem.ESCUDO:
-			pass
+			if GameManager.consumir_item(tipo):
+				escudo_activo = true
 		GameManager.TipoItem.PISTOLA:
-			pass
+			if fase_boss_activa:
+				_disparar()
 		GameManager.TipoItem.BAZUKA:
-			pass
+			if fase_boss_activa:
+				item_seleccionado = GameManager.inventario.find(GameManager.TipoItem.BAZUKA)
+				_disparar()
 
 func _activar_radar() -> void:
 	var celda_j := _celda_del_jugador()
@@ -469,3 +478,78 @@ func _on_continuar_historia() -> void:
 func _on_menu_historia() -> void:
 	GameManager.modo_historia = false
 	_fade_salida("res://scenes/02_historia.tscn")
+
+func _iniciar_fase_boss() -> void:
+	for c in get_tree().get_nodes_in_group("cazadores"):
+		c.queue_free()
+	fase_boss_activa = true
+	hud_vida_boss.visible = true
+	var escena_boss := load("res://actors/Boss.tscn")
+	boss = escena_boss.instantiate()
+	add_child(boss)
+	boss.jugador = jugador
+	boss.mapa = mapa
+	var caminables := mapa.celdas_caminables()
+	caminables.shuffle()
+	var celda: Vector2i = caminables[caminables.size() / 2]
+	boss.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
+	boss.activar()
+	lbl_boss.text = "GENERAL KARIMI"
+	_actualizar_hud_boss()
+
+func _actualizar_hud_boss() -> void:
+	if boss == null:
+		return
+	var porcentaje := float(boss.vida) / float(boss.VIDA_MAXIMA)
+	barra_vida_boss.size.x = 300.0 * porcentaje
+
+func _disparar() -> void:
+	if _cooldown_disparo > 0.0:
+		return
+	var tiene_pistola := GameManager.cantidad_item(GameManager.TipoItem.PISTOLA) > 0
+	var tiene_bazuka := GameManager.cantidad_item(GameManager.TipoItem.BAZUKA) > 0
+	if not tiene_pistola and not tiene_bazuka:
+		return
+	_cooldown_disparo = 0.4
+	var es_bazuka :bool = GameManager.inventario[item_seleccionado] == GameManager.TipoItem.BAZUKA
+	var danio := GameManager.DANIO_BAZUKA if es_bazuka else GameManager.DANIO_PISTOLA
+	if es_bazuka:
+		GameManager.consumir_item(GameManager.TipoItem.BAZUKA)
+	else:
+		GameManager.consumir_item(GameManager.TipoItem.PISTOLA)
+	if boss != null and boss.global_position.distance_to(jugador.global_position) < 80.0:
+		boss.recibir_danio(danio)
+		_actualizar_hud_boss()
+	for elite in get_tree().get_nodes_in_group("elite_boss"):
+		if elite.global_position.distance_to(jugador.global_position) < 80.0:
+			elite.queue_free()
+
+func _on_boss_muerto() -> void:
+	boss = null
+	fase_boss_activa = false
+	boss_derrotado = true
+	hud_vida_boss.visible = false
+	_ganar()
+
+func _on_danio_jugador(motivo: String) -> void:
+	if muerto:
+		return
+	if escudo_activo:
+		escudo_activo = false
+		_on_inventario_cambiado()
+		return
+	causa_muerte = motivo
+	_morir()
+
+func _on_impacto_granada(pos: Vector2) -> void:
+	if muerto:
+		return
+	if jugador.global_position.distance_to(pos) < 24.0:
+		_on_danio_jugador("alcanzado por una granada")
+
+func _primera_celda_caminable() -> Vector2i:
+	for f in range(1, mapa.filas - 1):
+		for c in range(1, mapa.columnas - 1):
+			if mapa.es_caminable(f, c):
+				return Vector2i(f, c)
+	return Vector2i(1, 1)
