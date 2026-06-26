@@ -92,6 +92,7 @@ func _ready() -> void:
 		cazador.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
 		cazador.inicio = cazador.global_position
 		cazador.destino = cazador.global_position
+	GestorAudio.reproducir_musica("juego")
 
 	_dibujar_overlay()
 	GameManager.actualizar_minas_restantes(tablero.contar_minas())
@@ -214,6 +215,7 @@ func _on_solicito_revelar() -> void:
 	if tablero.celdas[c.x][c.y]["abanderada"]:
 		return
 	tablero.revelar(c.x, c.y)
+	GestorAudio.reproducir_sfx("revelar")
 	if tablero.celdas[c.x][c.y]["mina"]:
 		causa_muerte = "pisaste una mina"
 		_morir()
@@ -224,6 +226,7 @@ func _on_solicito_revelar() -> void:
 		_ganar()
 
 func _morir() -> void:
+	GestorAudio.reproducir_sfx("mina" if causa_muerte == "pisaste una mina" else "derrota")
 	muerto = true
 	_congelar_actores()
 	GameManager.morir()
@@ -234,6 +237,7 @@ func _ganar() -> void:
 		_iniciar_fase_boss()
 		return
 	muerto = true
+	GestorAudio.reproducir_sfx("victoria")
 	_congelar_actores()
 	GameManager.nivel_ganado()
 	if GameManager.modo_historia:
@@ -252,6 +256,7 @@ func _on_solicito_abanderar() -> void:
 		return
 	var c := _celda_del_jugador()
 	tablero.abanderar(c.x, c.y)
+	GestorAudio.reproducir_sfx("bandera")
 	_dibujar_overlay()
 	GameManager.actualizar_minas_restantes(tablero.contar_minas() - tablero.contar_banderas())
 	if tablero.es_victoria():
@@ -324,6 +329,7 @@ func _on_alerta_cambiada(detectado: bool) -> void:
 	if detectado:
 		lbl_alerta.text = "⚠ ALERTA"
 		lbl_alerta.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+		GestorAudio.reproducir_sfx("deteccion")
 	else:
 		lbl_alerta.text = "● SEGURO"
 		lbl_alerta.add_theme_color_override("font_color", Color(0.3, 0.9, 0.5))
@@ -358,6 +364,7 @@ func _spawnear_items() -> void:
 		item.recogido.connect(_on_item_recogido)
 
 func _on_item_recogido(tipo: GameManager.TipoItem) -> void:
+	GestorAudio.reproducir_sfx("item")
 	GameManager.agregar_item(tipo)
 
 func _on_inventario_cambiado() -> void:
@@ -501,6 +508,7 @@ func _iniciar_fase_boss() -> void:
 	boss.activar()
 	lbl_boss.text = "GENERAL KARIMI"
 	_actualizar_hud_boss()
+	GestorAudio.reproducir_musica("boss")
 
 func _actualizar_hud_boss() -> void:
 	if boss == null:
@@ -516,6 +524,7 @@ func _disparar_con(tipo: GameManager.TipoItem) -> void:
 	if not GameManager.consumir_item(tipo):
 		return
 	_cooldown_disparo = 0.4
+	GestorAudio.reproducir_sfx("disparo")
 	var danio := GameManager.DANIO_BAZUKA if tipo == GameManager.TipoItem.BAZUKA else GameManager.DANIO_PISTOLA
 	if boss.global_position.distance_to(jugador.global_position) < 120.0:
 		boss.recibir_danio(danio)

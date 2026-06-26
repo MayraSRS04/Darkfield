@@ -23,6 +23,7 @@ func _ready() -> void:
 	btn_volver.pressed.connect(_on_volver)
 	_actualizar_botones()
 	_iniciar_fade()
+	GestorAudio.reproducir_musica("menu")
 
 func _actualizar_botones() -> void:
 	var maximo: int = GameManager.nivel_maximo_desbloqueado
