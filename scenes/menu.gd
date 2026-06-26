@@ -31,7 +31,7 @@ func _on_modo_historia() -> void:
 	_fade_salida("res://scenes/02_historia.tscn")
 
 func _on_opciones() -> void:
-	pass
+	_fade_salida("res://scenes/03_opciones.tscn")
 
 func _on_salir() -> void:
 	get_tree().quit()

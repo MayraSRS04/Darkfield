@@ -50,6 +50,7 @@ var celdas_reservadas: Dictionary = {}
 var modo_historia: bool = false
 var inventario: Array = []
 var nivel_maximo_desbloqueado: int = 0
+var brillo: float = 0.85
 
 func _ready() -> void:
 	_cargar_progreso()
