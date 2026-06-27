@@ -12,7 +12,7 @@ const COLOR_BLOQUEADO := Color(0.3, 0.35, 0.42, 1)
 const NOMBRES_NIVEL := [
 	"NIVEL 1 — La Emboscada",
 	"NIVEL 2 — Zona de Guerra",
-	"NIVEL 3 — El Último Bastión",
+	"NIVEL 3 — El Ultimo Bastion",
 ]
 
 func _ready() -> void:
