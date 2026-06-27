@@ -100,6 +100,88 @@ horizontal_alignment = 1
 [node name="Separador2" type="HSeparator" parent="Contenedor" unique_id=1322767707]
 layout_mode = 2
 
+[node name="LblMusica" type="Label" parent="Contenedor" unique_id=3001000001]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.44, 0.22, 1)
+theme_override_fonts/font = ExtResource("3_fuente")
+theme_override_font_sizes/font_size = 16
+text = "MÚSICA"
+horizontal_alignment = 1
+
+[node name="FilaMusica" type="HBoxContainer" parent="Contenedor" unique_id=3001000002]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SliderMusica" type="HSlider" parent="Contenedor/FilaMusica" unique_id=3001000003]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 0.8
+
+[node name="LblValorMusica" type="Label" parent="Contenedor/FilaMusica" unique_id=3001000004]
+custom_minimum_size = Vector2(52, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_fonts/font = ExtResource("3_fuente")
+theme_override_font_sizes/font_size = 16
+text = "80%"
+horizontal_alignment = 1
+
+[node name="LblSFX" type="Label" parent="Contenedor" unique_id=3001000005]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.44, 0.22, 1)
+theme_override_fonts/font = ExtResource("3_fuente")
+theme_override_font_sizes/font_size = 16
+text = "EFECTOS DE SONIDO"
+horizontal_alignment = 1
+
+[node name="FilaSFX" type="HBoxContainer" parent="Contenedor" unique_id=3001000006]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SliderSFX" type="HSlider" parent="Contenedor/FilaSFX" unique_id=3001000007]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="LblValorSFX" type="Label" parent="Contenedor/FilaSFX" unique_id=3001000008]
+custom_minimum_size = Vector2(52, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.32, 1)
+theme_override_fonts/font = ExtResource("3_fuente")
+theme_override_font_sizes/font_size = 16
+text = "100%"
+horizontal_alignment = 1
+
+[node name="Separador3" type="HSeparator" parent="Contenedor" unique_id=3001000009]
+layout_mode = 2
+
+[node name="FilaPantalla" type="HBoxContainer" parent="Contenedor" unique_id=3001000010]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="LblPantalla" type="Label" parent="Contenedor/FilaPantalla" unique_id=3001000011]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.44, 0.22, 1)
+theme_override_fonts/font = ExtResource("3_fuente")
+theme_override_font_sizes/font_size = 16
+text = "PANTALLA COMPLETA"
+
+[node name="ChkPantalla" type="CheckButton" parent="Contenedor/FilaPantalla" unique_id=3001000012]
+layout_mode = 2
+button_pressed = false
+
+[node name="Separador4" type="HSeparator" parent="Contenedor" unique_id=3001000013]
+layout_mode = 2
+
 [node name="BtnVolver" type="Button" parent="Contenedor" unique_id=201536807]
 custom_minimum_size = Vector2(320, 44)
 layout_mode = 2
