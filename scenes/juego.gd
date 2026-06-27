@@ -503,7 +503,8 @@ func _iniciar_fase_boss() -> void:
 	boss.mapa = mapa
 	var caminables := mapa.celdas_caminables()
 	caminables.shuffle()
-	var celda: Vector2i = caminables[caminables.size() / 2]
+	var mitad: int = floori(caminables.size() * 0.5)
+	var celda: Vector2i = caminables[mitad]
 	boss.global_position = suelo.map_to_local(Vector2i(celda.y, celda.x))
 	boss.activar()
 	lbl_boss.text = "GENERAL KARIMI"
