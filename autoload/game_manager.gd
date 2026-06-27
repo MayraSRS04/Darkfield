@@ -51,9 +51,16 @@ var modo_historia: bool = false
 var inventario: Array = []
 var nivel_maximo_desbloqueado: int = 0
 var brillo: float = 0.85
+var vol_musica: float = 0.8
+var vol_sfx: float = 1.0
+var pantalla_completa: bool = false
+
+const RUTA_OPCIONES := "user://opciones.cfg"
 
 func _ready() -> void:
 	_cargar_progreso()
+	_cargar_opciones()
+	_aplicar_opciones()
 
 func iniciar_nivel(indice: int) -> void:
 	nivel_actual = indice
@@ -148,3 +155,34 @@ func reiniciar_progreso() -> void:
 func _cambiar_estado(nuevo: Estado) -> void:
 	estado = nuevo
 	estado_cambiado.emit(nuevo)
+
+func _aplicar_opciones() -> void:
+	AudioServer.set_bus_volume_db(
+		AudioServer.get_bus_index("Musica"),
+		linear_to_db(vol_musica)
+	)
+	AudioServer.set_bus_volume_db(
+		AudioServer.get_bus_index("SFX"),
+		linear_to_db(vol_sfx)
+	)
+	if pantalla_completa:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+
+func guardar_opciones() -> void:
+	var cfg := ConfigFile.new()
+	cfg.set_value("opciones", "brillo", brillo)
+	cfg.set_value("opciones", "vol_musica", vol_musica)
+	cfg.set_value("opciones", "vol_sfx", vol_sfx)
+	cfg.set_value("opciones", "pantalla_completa", pantalla_completa)
+	cfg.save(RUTA_OPCIONES)
+
+func _cargar_opciones() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load(RUTA_OPCIONES) != OK:
+		return
+	brillo = cfg.get_value("opciones", "brillo", 0.85)
+	vol_musica = cfg.get_value("opciones", "vol_musica", 0.8)
+	vol_sfx = cfg.get_value("opciones", "vol_sfx", 1.0)
+	pantalla_completa = cfg.get_value("opciones", "pantalla_completa", false)
