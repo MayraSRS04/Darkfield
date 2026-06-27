@@ -105,7 +105,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.44, 0.22, 1)
 theme_override_fonts/font = ExtResource("3_fuente")
 theme_override_font_sizes/font_size = 16
-text = "MÚSICA"
+text = "MUSICA"
 horizontal_alignment = 1
 
 [node name="FilaMusica" type="HBoxContainer" parent="Contenedor" unique_id=3001000002]

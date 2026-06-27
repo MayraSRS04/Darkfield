@@ -242,7 +242,7 @@ text = "CONTINUAR"
 
 [node name="BtnMenuHistoria" type="Button" parent="PantallaResultadoHistoria/Contenedor" unique_id=1111111112]
 layout_mode = 2
-text = "MENÚ HISTORIA"
+text = "MENU HISTORIA"
 
 [node name="HUDVidaBoss" type="CanvasLayer" parent="." unique_id=-2072745095]
 layer = 7
